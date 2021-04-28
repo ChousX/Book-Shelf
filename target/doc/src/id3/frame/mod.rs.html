@@ -1,0 +1,695 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/aggelwick/.cargo/registry/src/github.com-1ecc6299db9ec823/id3-0.5.3/src/frame/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../id3/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+</pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tag</span>::<span class="ident">Version</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::{<span class="ident">convert_id_2_to_3</span>, <span class="ident">convert_id_3_to_2</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">content</span>::{
+    <span class="ident">Comment</span>, <span class="ident">Content</span>, <span class="ident">ExtendedLink</span>, <span class="ident">ExtendedText</span>, <span class="ident">Lyrics</span>, <span class="ident">Picture</span>, <span class="ident">PictureType</span>, <span class="ident">SynchronisedLyrics</span>,
+    <span class="ident">SynchronisedLyricsType</span>, <span class="ident">TimestampFormat</span>,
+};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">timestamp</span>::<span class="ident">Timestamp</span>;
+
+<span class="kw">mod</span> <span class="ident">content</span>;
+<span class="kw">mod</span> <span class="ident">timestamp</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
+<span class="kw">enum</span> <span class="ident">ID</span> {
+    <span class="doccomment">/// A valid 4-byte frame ID.</span>
+    <span class="ident">Valid</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// If an ID3v2.2 ID could not be mapped to its ID3v2.4 counterpart, it is stored as is. This</span>
+    <span class="doccomment">/// allows invalid ID3v2.2 frames to be retained.</span>
+    <span class="ident">Invalid</span>(<span class="ident">String</span>),
+}
+
+<span class="doccomment">/// A structure representing an ID3 frame.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// It is imporant to note that the (Partial)Eq and Hash implementations are based on the ID3 spec.</span>
+<span class="doccomment">/// This means that text frames with equal ID&#39;s are equal but picture frames with both &quot;APIC&quot; as ID</span>
+<span class="doccomment">/// are not because their uniqueness is also defined by their content.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Frame</span> {
+    <span class="ident">id</span>: <span class="ident">ID</span>,
+    <span class="ident">content</span>: <span class="ident">Content</span>,
+    <span class="ident">tag_alter_preservation</span>: <span class="ident">bool</span>,
+    <span class="ident">file_alter_preservation</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Frame</span> {
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Frame</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">content</span> {
+            <span class="ident">Content</span>::<span class="ident">Text</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">id</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">id</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">content</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">content</span>,
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Hash</span> <span class="kw">for</span> <span class="ident">Frame</span> {
+    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">content</span> {
+            <span class="ident">Content</span>::<span class="ident">Text</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">hash</span>(<span class="ident">state</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
+                <span class="self">self</span>.<span class="ident">content</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
+            }
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Frame</span> {
+    <span class="doccomment">/// Creates a frame with the specified ID and content.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Both ID3v2.2 and &gt;ID3v2.3 IDs are accepted, although they will be converted to ID3v2.3</span>
+    <span class="doccomment">/// format. If an ID3v2.2 ID is supplied but could not be remapped, it is stored as-is.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// If the id&#39;s length is not 3 or 4 bytes long.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_content</span>(<span class="ident">id</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">content</span>: <span class="ident">Content</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Frame</span> {
+        <span class="macro">assert</span><span class="macro">!</span>({
+            <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">as_ref</span>().<span class="ident">bytes</span>().<span class="ident">count</span>();
+            <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span> <span class="op">|</span><span class="op">|</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span>
+        });
+        <span class="ident">Frame</span> {
+            <span class="ident">id</span>: <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">as_ref</span>().<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">3</span> {
+                <span class="kw">match</span> <span class="ident">convert_id_2_to_3</span>(<span class="ident">id</span>.<span class="ident">as_ref</span>()) {
+                    <span class="prelude-val">Some</span>(<span class="ident">translated</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Valid</span>(<span class="ident">translated</span>.<span class="ident">to_string</span>()),
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Invalid</span>(<span class="ident">id</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>()),
+                }
+            } <span class="kw">else</span> {
+                <span class="ident">ID</span>::<span class="ident">Valid</span>(<span class="ident">id</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>())
+            },
+            <span class="ident">content</span>,
+            <span class="ident">tag_alter_preservation</span>: <span class="bool-val">false</span>,
+            <span class="ident">file_alter_preservation</span>: <span class="bool-val">false</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns the ID of this frame.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The string returned us usually 4 bytes long except when the frame was read from an ID3v2.2</span>
+    <span class="doccomment">/// tag and the ID could not be mapped to an ID3v2.3 ID.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">id</span> {
+            <span class="ident">ID</span>::<span class="ident">Valid</span>(<span class="kw-2">ref</span> <span class="ident">id</span>) <span class="op">|</span> <span class="ident">ID</span>::<span class="ident">Invalid</span>(<span class="kw-2">ref</span> <span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">id</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns the ID that is compatible with specified version or None if no ID is available in</span>
+    <span class="doccomment">/// that version.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id_for_version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">version</span>: <span class="ident">Version</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> (<span class="ident">version</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>) {
+            (<span class="ident">Version</span>::<span class="ident">Id3v22</span>, <span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Valid</span>(<span class="kw-2">ref</span> <span class="ident">id</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">convert_id_3_to_2</span>(<span class="ident">id</span>),
+            (<span class="ident">Version</span>::<span class="ident">Id3v23</span>, <span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Valid</span>(<span class="kw-2">ref</span> <span class="ident">id</span>))
+            <span class="op">|</span> (<span class="ident">Version</span>::<span class="ident">Id3v24</span>, <span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Valid</span>(<span class="kw-2">ref</span> <span class="ident">id</span>))
+            <span class="op">|</span> (<span class="ident">Version</span>::<span class="ident">Id3v22</span>, <span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Invalid</span>(<span class="kw-2">ref</span> <span class="ident">id</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>),
+            (<span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Invalid</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns the content of the frame.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Content</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">content</span>
+    }
+
+    <span class="doccomment">/// Returns whether the tag_alter_preservation flag is set.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag_alter_preservation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">tag_alter_preservation</span>
+    }
+
+    <span class="doccomment">/// Sets the tag_alter_preservation flag.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_tag_alter_preservation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tag_alter_preservation</span>: <span class="ident">bool</span>) {
+        <span class="self">self</span>.<span class="ident">tag_alter_preservation</span> <span class="op">=</span> <span class="ident">tag_alter_preservation</span>;
+    }
+
+    <span class="doccomment">/// Returns whether the file_alter_preservation flag is set.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_alter_preservation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">file_alter_preservation</span>
+    }
+
+    <span class="doccomment">/// Sets the file_alter_preservation flag.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_file_alter_preservation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">file_alter_preservation</span>: <span class="ident">bool</span>) {
+        <span class="self">self</span>.<span class="ident">file_alter_preservation</span> <span class="op">=</span> <span class="ident">file_alter_preservation</span>;
+    }
+
+    <span class="doccomment">/// Returns the name of the frame.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The name is the _human-readable_ representation of a frame</span>
+    <span class="doccomment">/// id. For example, the id `&quot;TCOM&quot;` corresponds to the name</span>
+    <span class="doccomment">/// `&quot;Composer&quot;`. The names are taken from the</span>
+    <span class="doccomment">/// [ID3v2.4](http://id3.org/id3v2.4.0-frames),</span>
+    <span class="doccomment">/// [ID3v2.3](http://id3.org/d3v2.3.0) and</span>
+    <span class="doccomment">/// [ID3v2.2](http://id3.org/d3v2-00) standards.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">id</span>() {
+            <span class="comment">// Ids and names defined in section 4 of http://id3.org/id3v2.4.0-frames</span>
+            <span class="string">&quot;AENC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Audio encryption&quot;</span>,
+            <span class="string">&quot;APIC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Attached picture&quot;</span>,
+            <span class="string">&quot;ASPI&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Audio seek point index&quot;</span>,
+            <span class="string">&quot;COMM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Comments&quot;</span>,
+            <span class="string">&quot;COMR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Commercial frame&quot;</span>,
+            <span class="string">&quot;ENCR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Encryption method registration&quot;</span>,
+            <span class="string">&quot;EQU2&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Equalisation (2)&quot;</span>,
+            <span class="string">&quot;ETCO&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Event timing codes&quot;</span>,
+            <span class="string">&quot;GEOB&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;General encapsulated object&quot;</span>,
+            <span class="string">&quot;GRID&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Group identification registration&quot;</span>,
+            <span class="string">&quot;LINK&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Linked information&quot;</span>,
+            <span class="string">&quot;MCDI&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Music CD identifier&quot;</span>,
+            <span class="string">&quot;MLLT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;MPEG location lookup table&quot;</span>,
+            <span class="string">&quot;OWNE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Ownership frame&quot;</span>,
+            <span class="string">&quot;PRIV&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Private frame&quot;</span>,
+            <span class="string">&quot;PCNT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Play counter&quot;</span>,
+            <span class="string">&quot;POPM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Popularimeter&quot;</span>,
+            <span class="string">&quot;POSS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Position synchronisation frame&quot;</span>,
+            <span class="string">&quot;RBUF&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Recommended buffer size&quot;</span>,
+            <span class="string">&quot;RVA2&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Relative volume adjustment (2)&quot;</span>,
+            <span class="string">&quot;RVRB&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Reverb&quot;</span>,
+            <span class="string">&quot;SEEK&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Seek frame&quot;</span>,
+            <span class="string">&quot;SIGN&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Signature frame&quot;</span>,
+            <span class="string">&quot;SYLT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Synchronised lyric/text&quot;</span>,
+            <span class="string">&quot;SYTC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Synchronised tempo codes&quot;</span>,
+            <span class="string">&quot;TALB&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Album/Movie/Show title&quot;</span>,
+            <span class="string">&quot;TBPM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;BPM (beats per minute)&quot;</span>,
+            <span class="string">&quot;TCOM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Composer&quot;</span>,
+            <span class="string">&quot;TCON&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Content type&quot;</span>,
+            <span class="string">&quot;TCOP&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Copyright message&quot;</span>,
+            <span class="string">&quot;TDEN&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Encoding time&quot;</span>,
+            <span class="string">&quot;TDLY&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Playlist delay&quot;</span>,
+            <span class="string">&quot;TDOR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original release time&quot;</span>,
+            <span class="string">&quot;TDRC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Recording time&quot;</span>,
+            <span class="string">&quot;TDRL&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Release time&quot;</span>,
+            <span class="string">&quot;TDTG&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Tagging time&quot;</span>,
+            <span class="string">&quot;TENC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Encoded by&quot;</span>,
+            <span class="string">&quot;TEXT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Lyricist/Text writer&quot;</span>,
+            <span class="string">&quot;TFLT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;File type&quot;</span>,
+            <span class="string">&quot;TIPL&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Involved people list&quot;</span>,
+            <span class="string">&quot;TIT1&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Content group description&quot;</span>,
+            <span class="string">&quot;TIT2&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Title/songname/content description&quot;</span>,
+            <span class="string">&quot;TIT3&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Subtitle/Description refinement&quot;</span>,
+            <span class="string">&quot;TKEY&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Initial key&quot;</span>,
+            <span class="string">&quot;TLAN&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Language(s)&quot;</span>,
+            <span class="string">&quot;TLEN&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Length&quot;</span>,
+            <span class="string">&quot;TMCL&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Musician credits list&quot;</span>,
+            <span class="string">&quot;TMED&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Media type&quot;</span>,
+            <span class="string">&quot;TMOO&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Mood&quot;</span>,
+            <span class="string">&quot;TOAL&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original album/movie/show title&quot;</span>,
+            <span class="string">&quot;TOFN&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original filename&quot;</span>,
+            <span class="string">&quot;TOLY&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original lyricist(s)/text writer(s)&quot;</span>,
+            <span class="string">&quot;TOPE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original artist(s)/performer(s)&quot;</span>,
+            <span class="string">&quot;TOWN&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;File owner/licensee&quot;</span>,
+            <span class="string">&quot;TPE1&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Lead performer(s)/Soloist(s)&quot;</span>,
+            <span class="string">&quot;TPE2&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Band/orchestra/accompaniment&quot;</span>,
+            <span class="string">&quot;TPE3&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Conductor/performer refinement&quot;</span>,
+            <span class="string">&quot;TPE4&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Interpreted, remixed, or otherwise modified by&quot;</span>,
+            <span class="string">&quot;TPOS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Part of a set&quot;</span>,
+            <span class="string">&quot;TPRO&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Produced notice&quot;</span>,
+            <span class="string">&quot;TPUB&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Publisher&quot;</span>,
+            <span class="string">&quot;TRCK&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Track number/Position in set&quot;</span>,
+            <span class="string">&quot;TRSN&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Internet radio station name&quot;</span>,
+            <span class="string">&quot;TRSO&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Internet radio station owner&quot;</span>,
+            <span class="string">&quot;TSOA&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Album sort order&quot;</span>,
+            <span class="string">&quot;TSOP&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Performer sort order&quot;</span>,
+            <span class="string">&quot;TSOT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Title sort order&quot;</span>,
+            <span class="string">&quot;TSRC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISRC (international standard recording code)&quot;</span>,
+            <span class="string">&quot;TSSE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Software/Hardware and settings used for encoding&quot;</span>,
+            <span class="string">&quot;TSST&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Set subtitle&quot;</span>,
+            <span class="string">&quot;TXXX&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;User defined text information frame&quot;</span>,
+            <span class="string">&quot;UFID&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unique file identifier&quot;</span>,
+            <span class="string">&quot;USER&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Terms of use&quot;</span>,
+            <span class="string">&quot;USLT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unsynchronised lyric/text transcription&quot;</span>,
+            <span class="string">&quot;WCOM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Commercial information&quot;</span>,
+            <span class="string">&quot;WCOP&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Copyright/Legal information&quot;</span>,
+            <span class="string">&quot;WOAF&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Official audio file webpage&quot;</span>,
+            <span class="string">&quot;WOAR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Official artist/performer webpage&quot;</span>,
+            <span class="string">&quot;WOAS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Official audio source webpage&quot;</span>,
+            <span class="string">&quot;WORS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Official Internet radio station homepage&quot;</span>,
+            <span class="string">&quot;WPAY&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Payment&quot;</span>,
+            <span class="string">&quot;WPUB&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Publishers official webpage&quot;</span>,
+            <span class="string">&quot;WXXX&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;User defined URL link frame&quot;</span>,
+
+            <span class="comment">// Ids and names defined in section 4 of</span>
+            <span class="comment">// http://id3.org/d3v2.3.0 which have not been previously</span>
+            <span class="comment">// defined above</span>
+            <span class="string">&quot;EQUA&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Equalization&quot;</span>,
+            <span class="string">&quot;IPLS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Involved people list&quot;</span>,
+            <span class="string">&quot;RVAD&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Relative volume adjustment&quot;</span>,
+            <span class="string">&quot;TDAT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Date&quot;</span>,
+            <span class="string">&quot;TIME&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Time&quot;</span>,
+            <span class="string">&quot;TORY&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original release year&quot;</span>,
+            <span class="string">&quot;TRDA&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Recording dates&quot;</span>,
+            <span class="string">&quot;TSIZ&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Size&quot;</span>,
+            <span class="string">&quot;TYER&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Year&quot;</span>,
+
+            <span class="comment">// Ids and names defined in section 4 of</span>
+            <span class="comment">// http://id3.org/d3v2-00 which have not been previously</span>
+            <span class="comment">// defined above</span>
+            <span class="string">&quot;BUF&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Recommended buffer size&quot;</span>,
+            <span class="string">&quot;CNT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Play counter&quot;</span>,
+            <span class="string">&quot;COM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Comments&quot;</span>,
+            <span class="string">&quot;CRA&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Audio encryption&quot;</span>,
+            <span class="string">&quot;CRM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Encrypted meta frame&quot;</span>,
+            <span class="string">&quot;ETC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Event timing codes&quot;</span>,
+            <span class="string">&quot;EQU&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Equalization&quot;</span>,
+            <span class="string">&quot;GEO&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;General encapsulated object&quot;</span>,
+            <span class="string">&quot;IPL&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Involved people list&quot;</span>,
+            <span class="string">&quot;LNK&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Linked information&quot;</span>,
+            <span class="string">&quot;MCI&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Music CD Identifier&quot;</span>,
+            <span class="string">&quot;MLL&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;MPEG location lookup table&quot;</span>,
+            <span class="string">&quot;PIC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Attached picture&quot;</span>,
+            <span class="string">&quot;POP&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Popularimeter&quot;</span>,
+            <span class="string">&quot;REV&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Reverb&quot;</span>,
+            <span class="string">&quot;RVA&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Relative volume adjustment&quot;</span>,
+            <span class="string">&quot;SLT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Synchronized lyric/text&quot;</span>,
+            <span class="string">&quot;STC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Synced tempo codes&quot;</span>,
+            <span class="string">&quot;TAL&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Album/Movie/Show title&quot;</span>,
+            <span class="string">&quot;TBP&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;BPM (Beats Per Minute)&quot;</span>,
+            <span class="string">&quot;TCM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Composer&quot;</span>,
+            <span class="string">&quot;TCO&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Content type&quot;</span>,
+            <span class="string">&quot;TCR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Copyright message&quot;</span>,
+            <span class="string">&quot;TDA&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Date&quot;</span>,
+            <span class="string">&quot;TDY&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Playlist delay&quot;</span>,
+            <span class="string">&quot;TEN&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Encoded by&quot;</span>,
+            <span class="string">&quot;TFT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;File type&quot;</span>,
+            <span class="string">&quot;TIM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Time&quot;</span>,
+            <span class="string">&quot;TKE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Initial key&quot;</span>,
+            <span class="string">&quot;TLA&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Language(s)&quot;</span>,
+            <span class="string">&quot;TLE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Length&quot;</span>,
+            <span class="string">&quot;TMT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Media type&quot;</span>,
+            <span class="string">&quot;TOA&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original artist(s)/performer(s)&quot;</span>,
+            <span class="string">&quot;TOF&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original filename&quot;</span>,
+            <span class="string">&quot;TOL&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original Lyricist(s)/text writer(s)&quot;</span>,
+            <span class="string">&quot;TOR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original release year&quot;</span>,
+            <span class="string">&quot;TOT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Original album/Movie/Show title&quot;</span>,
+            <span class="string">&quot;TP1&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Lead artist(s)/Lead performer(s)/Soloist(s)/Performing group&quot;</span>,
+            <span class="string">&quot;TP2&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Band/Orchestra/Accompaniment&quot;</span>,
+            <span class="string">&quot;TP3&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Conductor/Performer refinement&quot;</span>,
+            <span class="string">&quot;TP4&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Interpreted, remixed, or otherwise modified by&quot;</span>,
+            <span class="string">&quot;TPA&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Part of a set&quot;</span>,
+            <span class="string">&quot;TPB&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Publisher&quot;</span>,
+            <span class="string">&quot;TRC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISRC (International Standard Recording Code)&quot;</span>,
+            <span class="string">&quot;TRD&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Recording dates&quot;</span>,
+            <span class="string">&quot;TRK&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Track number/Position in set&quot;</span>,
+            <span class="string">&quot;TSI&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Size&quot;</span>,
+            <span class="string">&quot;TSS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Software/hardware and settings used for encoding&quot;</span>,
+            <span class="string">&quot;TT1&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Content group description&quot;</span>,
+            <span class="string">&quot;TT2&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Title/Songname/Content description&quot;</span>,
+            <span class="string">&quot;TT3&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Subtitle/Description refinement&quot;</span>,
+            <span class="string">&quot;TXT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Lyricist/text writer&quot;</span>,
+            <span class="string">&quot;TXX&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;User defined text information frame&quot;</span>,
+            <span class="string">&quot;TYE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Year&quot;</span>,
+            <span class="string">&quot;UFI&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unique file identifier&quot;</span>,
+            <span class="string">&quot;ULT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unsychronized lyric/text transcription&quot;</span>,
+            <span class="string">&quot;WAF&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Official audio file webpage&quot;</span>,
+            <span class="string">&quot;WAR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Official artist/performer webpage&quot;</span>,
+            <span class="string">&quot;WAS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Official audio source webpage&quot;</span>,
+            <span class="string">&quot;WCM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Commercial information&quot;</span>,
+            <span class="string">&quot;WCP&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Copyright/Legal information&quot;</span>,
+            <span class="string">&quot;WPB&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Publishers official webpage&quot;</span>,
+            <span class="string">&quot;WXX&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;User defined URL link frame&quot;</span>,
+
+            <span class="ident">v</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Frame</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{} = {}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>(), <span class="self">self</span>.<span class="ident">content</span>)
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_display</span>() {
+        <span class="kw">let</span> <span class="ident">title_frame</span> <span class="op">=</span> <span class="ident">Frame</span>::<span class="ident">with_content</span>(<span class="string">&quot;TIT2&quot;</span>, <span class="ident">Content</span>::<span class="ident">Text</span>(<span class="string">&quot;title&quot;</span>.<span class="ident">to_owned</span>()));
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">title_frame</span>),
+            <span class="string">&quot;Title/songname/content description = title&quot;</span>
+        );
+
+        <span class="kw">let</span> <span class="ident">txxx_frame</span> <span class="op">=</span> <span class="ident">Frame</span>::<span class="ident">with_content</span>(
+            <span class="string">&quot;TXXX&quot;</span>,
+            <span class="ident">Content</span>::<span class="ident">ExtendedText</span>(<span class="ident">ExtendedText</span> {
+                <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_owned</span>(),
+                <span class="ident">value</span>: <span class="string">&quot;value&quot;</span>.<span class="ident">to_owned</span>(),
+            }),
+        );
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">txxx_frame</span>),
+            <span class="string">&quot;User defined text information frame = description: value&quot;</span>
+        );
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="id3"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

@@ -1,0 +1,1 @@
+/home/aggelwick/Code/Rust/book_shelf/target/debug/book_shelf: /home/aggelwick/Code/Rust/book_shelf/src/book_shelf/book.rs /home/aggelwick/Code/Rust/book_shelf/src/book_shelf/config.rs /home/aggelwick/Code/Rust/book_shelf/src/book_shelf/mod.rs /home/aggelwick/Code/Rust/book_shelf/src/main.rs
