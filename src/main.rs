@@ -10,6 +10,7 @@ fn main() {
         archives: vec![PathBuf::from("/run/media/aggelwick/Big Black/BB-Books")],
         ..Default::default()
     });
+    
 
     // let mut bs = BookShelf::default();
     // bs.add_shelve(PathBuf::from("/run/media/aggelwick/Big Black/BB-Books"));

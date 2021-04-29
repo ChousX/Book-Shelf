@@ -103,7 +103,6 @@ impl Book {
         let files = get_files(path.as_path());
         let mut p_titles: HashSet<String> = HashSet::new();
         let mut p_author: HashSet<String> = HashSet::new();
-        let mut title = None;
         '_book: for file in files.iter() {
             if let Some(ext) = file.extension() {
                 let ext = ext.to_str().unwrap();
@@ -172,7 +171,8 @@ impl Book {
         }
         //asks user for book building input
         if config.user_directed {
-            //splits selected title by user directed pattern 
+
+            //splits selected title by user directed pattern
             fn user_split(input: &str) -> Option<String> {
                 let mut numline = String::new();
                 let mut mainline = String::new();
@@ -194,9 +194,7 @@ impl Book {
                 }
                 println!("{}", numline);
                 println!("{}", mainline);
-                print!("from:");
                 if let Some(f) = get_iu() {
-                    print!(" to:");
                     if let Some(t) = get_iu() {
                         if let Ok(f) = f.parse::<usize>() {
                             if let Ok(t) = t.parse::<usize>() {
@@ -217,64 +215,129 @@ impl Book {
                 None
             }
             // user select an entry out of a hash-set
-            fn select(set: HashSet<String>) -> Option<String>{
-                for (i, item) in set.iter().enumerate() {
-                    println!("{}|'{}'", i, item);
-                }
-                println!("Select or enter nothing to continue\n'id'");
-                if let Some(id) = get_iu(){
-                    if let Ok(id_parsed) = id.parse::<usize>(){
-                        return set.iter().enumerate().find_map(|(i, e)|{ if id_parsed == i{Some(e.clone())}else{None}});
+            fn select(set: &HashSet<String>) -> Option<String> {
+                fn aux(set: &HashSet<String>) {
+                    //listing off all the posable book titles
+                    for (i, item) in set.iter().enumerate() {
+                        println!("{}|'{}'", i, item);
                     }
-                } 
+                    // print!("Select or enter nothing to continue");
+                    // ^ for some reason this was not printing befor the get_iu funk
+                }
+
+                aux(set);
+                if let Some(id) = get_iu() {
+                    if let Ok(id_parsed) = id.parse::<usize>() {
+                        println!();
+                        return set.iter().enumerate().find_map(|(i, e)| {
+                            if id_parsed == i {
+                                Some(e.clone())
+                            } else {
+                                None
+                            }
+                        });
+                    }
+                }
+                println!();
                 None
             }
-            fn user_option(input: ){
-                println!("candiot:'{}'\nuser options:\n0: Split\n", s_title);
-            }
-            //listing off all the posable book titles
-
-            //asking the user to select an title entry. if they enter nothing or a non number or a value that is out of bands move on
-            println!("Select or enter nothing to continue\n'id'");
-
-            if let Some(id) = get_iu() {
-                if let Ok(id_) = id.parse::<usize>() {
-                    println!("-0");
-                    if let Some(s_title) =
-                    
-                        p_author.iter().enumerate().find_map(
-                            |(i, e)| {
-                                if i == id_ {
-                                    Some(e)
-                                } else {
-                                    None
-                                }
-                            },
-                        )
-                    {
-                    println!("-1");
-                        println!("candiot:'{}'\nuser options:\n0: Split\n", s_title);
-                        if let Some(option) = get_iu() {
-                            title = match option.to_lowercase().trim() {
-                                "0" | "s" | "split" => {
-                                    if let Some(choice) = user_split(s_title) {
-                                        println!("Choice: '{}'", choice);
-                                        Some(choice)
-                                    } else {
-                                        p_titles.into_iter().next()
-                                    }
-                                }
-                                _ => p_titles.into_iter().next(),
-                            };
+            //prompt user with options and display the data thats being worked on
+            fn user_option(input: &str) -> Option<String> {
+                let save = String::from(input);
+                println!("candiot:'{}'\nuser options:\n0: Split", input);
+                if let Some(input) = get_iu() {
+                    match input.to_lowercase().trim() {
+                        "0" | "s" | "split" => {
+                            if let Some(choice) = user_split(&save) {
+                                println!("Choice: '{}'", choice);
+                                Some(choice)
+                            } else {
+                                None
+                            }
                         }
+                        _ => None,
+                    }
+                } else {
+                    None
+                }
+            }
+            //Title
+            let title = if !p_titles.is_empty() {
+                println!("Title");
+                if let Some(title_) = select(&p_titles) {
+                    user_option(&title_)
+                } else {
+                    if let Some(s) = p_titles.iter().next() {
+                        Some(String::from(s))
+                    } else {
+                        None
                     }
                 }
             } else {
-                title = p_titles.into_iter().next();
-            }
-        } else {
-        }
+                None
+            };
+            println!("Author");
+            let mut authors = HashSet::new();
+            loop{
+                let author_ = if !p_author.is_empty(){
 
-        None
+                    if let Some(author_) = select(&p_author){
+                        user_option(&author_)
+                    } else {
+                        if let Some(s) = p_author.iter().next(){
+                            Some(String::from(s))
+                        } else {
+                            None
+                        }
+                    }
+                } else {
+                    None
+                };
+                if let Some(author_) =author_{
+                    authors.insert(author_);
+                } else {
+                    break;
+                }
+            };
+            Some(Self{title, authors, ..Default::default()})
+            
+        } else {
+            None
+        } 
+    }
+}
+impl std::fmt::Display for Book{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut acum = String::new();
+        if let Some(title) = self.title.clone(){
+            acum.push_str("Title: ");
+            acum.push_str(&title);
+            acum.push_str("\n");
+        }
+        if !self.authors.is_empty(){
+            acum.push_str("Author('s): ");
+            let mut a_iter = self.authors.iter();
+            if let Some(author) = a_iter.next(){
+                acum.push_str(author);
+            }
+            for author in a_iter{
+                acum.push_str(", ");
+                acum.push_str(author);
+            }
+            acum.push_str("\n")
+        }
+        if !self.narrators.is_empty(){
+            acum.push_str("Narrator('s): ");
+            let mut n_iter = self.narrators.iter();
+            if let Some(narrator) = n_iter.next(){
+                acum.push_str(narrator);
+            }
+            for narrator in n_iter{
+                acum.push_str(", ");
+                acum.push_str(narrator);
+            }
+            acum.push_str("\n")
+        }
+        write!(f, "{}", acum)
     }
 }

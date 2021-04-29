@@ -6,6 +6,7 @@ mod config;
 pub use book::*;
 pub use config::*;
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct BookShelf {
     config: Config,
     books: Vec<Book>,
@@ -48,6 +49,12 @@ impl BookShelf {
                 self.books.push(book);
             }
         }
+    }
+    pub fn load(path: &Path) -> Self{
+        unimplemented!()
+    }
+    pub fn save(&self, path: &Path){
+        
     }
 }
 fn get_dir(root: &Path) -> Vec<PathBuf> {
