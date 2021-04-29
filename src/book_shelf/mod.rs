@@ -50,7 +50,7 @@ impl BookShelf {
     }
     fn init_as_needed(&mut self){
         let config = self.config.clone();
-        let mut possible_file_location = config.get_possible_file_location();
+        let possible_file_location = config.get_possible_file_location();
         for p_book in possible_file_location{
             if !self.books.iter().any(|b|{
                 b.path == p_book 
@@ -76,8 +76,18 @@ impl BookShelf {
         bs.init_as_needed();
         Some(bs)
     }
+    pub fn load_and_config(path: &Path, config: Config) -> Option<Self>{
+        let data = match std::fs::read(path) {
+            Ok(d) => d,
+            Err(_) => return None,
+        };
+        let mut bs: BookShelf = serde_json::from_slice(&data).expect("failed to deserialize");
+        bs.config = config;
+        bs.init_as_needed();
+        Some(bs)
+    }
     pub fn save(&self, path: &Path) {
-        let mut s = serde_json::to_string(self).expect("failed to serialize");
+        let s = serde_json::to_string(self).expect("failed to serialize");
         std::fs::write(path, s).expect("failed to write to file");
     }
 }

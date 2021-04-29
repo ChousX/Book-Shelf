@@ -300,6 +300,7 @@ impl Book {
             Some(Self {
                 title,
                 authors,
+                path,
                 ..Default::default()
             })
         } else {
