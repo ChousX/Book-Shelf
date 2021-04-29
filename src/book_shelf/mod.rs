@@ -75,3 +75,12 @@ fn get_dir(root: &Path) -> Vec<PathBuf> {
     }
     output
 }
+impl std::fmt::Display for BookShelf{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut acum = String::new();
+        if !self.books.is_empty(){
+            
+        }
+        write!(f, "{}", acum)
+    }
+}
