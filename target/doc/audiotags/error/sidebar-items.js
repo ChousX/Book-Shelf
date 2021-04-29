@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Error","Error that could occur in this library."]],"type":[["Result",""]]});

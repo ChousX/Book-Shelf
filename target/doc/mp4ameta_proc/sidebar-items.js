@@ -1,1 +1,0 @@
-initSidebarItems({"macro":[["flag_value_accessor",""],["individual_string_value_accessor",""],["integer_value_accessor",""],["multiple_string_values_accessor",""]]});

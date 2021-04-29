@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["MimeType",""]],"struct":[["Album","A struct for representing an album for convinience."],["Picture",""]]});
