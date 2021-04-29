@@ -72,7 +72,9 @@ impl BookShelf {
             Ok(d) => d,
             Err(_) => return None,
         };
-        Some(serde_json::from_slice(&data).expect("failed to deserialize"))
+        let mut bs: BookShelf = serde_json::from_slice(&data).expect("failed to deserialize");
+        bs.init_as_needed();
+        Some(bs)
     }
     pub fn save(&self, path: &Path) {
         let mut s = serde_json::to_string(self).expect("failed to serialize");
