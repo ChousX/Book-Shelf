@@ -22,6 +22,15 @@ impl Default for Config {
         }
     }
 }
+impl Config{
+    pub fn get_possible_file_location(&self) -> Vec<PathBuf>{
+        let mut output = vec![];
+        for path in self.archives.iter(){
+            output.append(&mut get_dir(path.as_path()));
+        }
+        output
+    }
+}
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum OrderingMethod {
     Alphabetic,
@@ -58,4 +67,22 @@ impl Default for OrderingLocation {
     fn default() -> Self {
         Self::Title
     }
+}
+fn get_dir(root: &Path) -> Vec<PathBuf> {
+    fn aux(root: &Path, output: &mut Vec<PathBuf>) -> std::io::Result<()> {
+        for entry in std::fs::read_dir(root)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_dir() {
+                aux(path.as_path(), output);
+                output.push(path);
+            }
+        }
+        Ok(())
+    }
+    let mut output = vec![];
+    match aux(root, &mut output) {
+        _ => {}
+    }
+    output
 }

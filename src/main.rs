@@ -5,12 +5,19 @@ use std::path::{Path, PathBuf};
 mod book_shelf;
 use book_shelf::*;
 
+const SAVE_PATH: &str = "saves/test.json";
 fn main() {
-    let mut bs = BookShelf::new(Config {
-        archives: vec![PathBuf::from("/run/media/aggelwick/Big Black/BB-Books")],
-        ..Default::default()
-    });
-    
+    let mut bs = if let Some(book_shelf) = BookShelf::load(Path::new(SAVE_PATH)) {
+        book_shelf
+    } else {
+        BookShelf::new(Config {
+            archives: vec![PathBuf::from("/run/media/aggelwick/Big Black/BB-Books")],
+            user_directed: false,
+            ..Default::default()
+        })
+    };
+    println!("{}", bs);
+    bs.save(Path::new(SAVE_PATH));
 
     // let mut bs = BookShelf::default();
     // bs.add_shelve(PathBuf::from("/run/media/aggelwick/Big Black/BB-Books"));

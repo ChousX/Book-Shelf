@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
+use std::{collections::HashSet, fmt::format};
 mod book;
 mod config;
 pub use book::*;
@@ -34,10 +34,8 @@ impl BookShelf {
     }
     fn init(&mut self) {
         let config = self.config.clone();
-        let mut possible_file_locations = vec![];
-        for path in config.archives {
-            possible_file_locations.append(&mut get_dir(path.as_path()));
-        }
+        let mut possible_file_locations = config.get_possible_file_location();
+
         for p_book in possible_file_locations {
             if let Some(book) = Book::build(p_book, &self.config, &self.authors, &self.narrators) {
                 book.authors.iter().for_each(|x| {
@@ -50,36 +48,48 @@ impl BookShelf {
             }
         }
     }
-    pub fn load(path: &Path) -> Self{
-        unimplemented!()
-    }
-    pub fn save(&self, path: &Path){
-        
-    }
-}
-fn get_dir(root: &Path) -> Vec<PathBuf> {
-    fn aux(root: &Path, output: &mut Vec<PathBuf>) -> std::io::Result<()> {
-        for entry in std::fs::read_dir(root)? {
-            let entry = entry?;
-            let path = entry.path();
-            if path.is_dir() {
-                aux(path.as_path(), output);
-                output.push(path);
+    fn init_as_needed(&mut self){
+        let config = self.config.clone();
+        let mut possible_file_location = config.get_possible_file_location();
+        for p_book in possible_file_location{
+            if !self.books.iter().any(|b|{
+                b.path == p_book 
+            }){
+                if let Some(book) = Book::build(p_book, &config, &self.authors, &self.narrators) {
+                    book.authors.iter().for_each(|x| {
+                        self.authors.insert(String::from(x));
+                    });
+                    book.narrators.iter().for_each(|x| {
+                        self.narrators.insert(String::from(x));
+                    });
+                    self.books.push(book);
+                }
             }
         }
-        Ok(())
     }
-    let mut output = vec![];
-    match aux(root, &mut output) {
-        _ => {}
+    pub fn load(path: &Path) -> Option<Self> {
+        let data = match std::fs::read(path) {
+            Ok(d) => d,
+            Err(_) => return None,
+        };
+        Some(serde_json::from_slice(&data).expect("failed to deserialize"))
     }
-    output
+    pub fn save(&self, path: &Path) {
+        let mut s = serde_json::to_string(self).expect("failed to serialize");
+        std::fs::write(path, s).expect("failed to write to file");
+    }
 }
-impl std::fmt::Display for BookShelf{
+
+impl std::fmt::Display for BookShelf {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut acum = String::new();
-        if !self.books.is_empty(){
-            
+        if !self.books.is_empty() {
+            acum.push_str("Book:\n");
+            for book in self.books.iter() {
+                let f = format!("{}\n", &book);
+                acum.push_str(&f);
+            }
+            acum.push_str("\n");
         }
         write!(f, "{}", acum)
     }

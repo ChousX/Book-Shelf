@@ -40,7 +40,7 @@ impl Book {
         fn nfo_pars(path: &Path) -> Option<Book> {
             fn aux(s: &String, f: &str) -> Option<String> {
                 if let Some(id) = s.find(f) {
-                    let (_, tail) = s.split_at(id + f.len() - 1);
+                    let (_, tail) = s.split_at(id + f.len() );
                     Some(String::from(tail.trim()))
                 } else {
                     None
@@ -171,7 +171,6 @@ impl Book {
         }
         //asks user for book building input
         if config.user_directed {
-
             //splits selected title by user directed pattern
             fn user_split(input: &str) -> Option<String> {
                 let mut numline = String::new();
@@ -278,13 +277,12 @@ impl Book {
             };
             println!("Author");
             let mut authors = HashSet::new();
-            loop{
-                let author_ = if !p_author.is_empty(){
-
-                    if let Some(author_) = select(&p_author){
+            loop {
+                let author_ = if !p_author.is_empty() {
+                    if let Some(author_) = select(&p_author) {
                         user_option(&author_)
                     } else {
-                        if let Some(s) = p_author.iter().next(){
+                        if let Some(s) = p_author.iter().next() {
                             Some(String::from(s))
                         } else {
                             None
@@ -293,46 +291,49 @@ impl Book {
                 } else {
                     None
                 };
-                if let Some(author_) =author_{
+                if let Some(author_) = author_ {
                     authors.insert(author_);
                 } else {
                     break;
                 }
-            };
-            Some(Self{title, authors, ..Default::default()})
-            
+            }
+            Some(Self {
+                title,
+                authors,
+                ..Default::default()
+            })
         } else {
             None
-        } 
+        }
     }
 }
-impl std::fmt::Display for Book{
+impl std::fmt::Display for Book {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut acum = String::new();
-        if let Some(title) = self.title.clone(){
+        if let Some(title) = self.title.clone() {
             acum.push_str("Title: ");
             acum.push_str(&title);
             acum.push_str("\n");
         }
-        if !self.authors.is_empty(){
+        if !self.authors.is_empty() {
             acum.push_str("Author('s): ");
             let mut a_iter = self.authors.iter();
-            if let Some(author) = a_iter.next(){
+            if let Some(author) = a_iter.next() {
                 acum.push_str(author);
             }
-            for author in a_iter{
+            for author in a_iter {
                 acum.push_str(", ");
                 acum.push_str(author);
             }
             acum.push_str("\n")
         }
-        if !self.narrators.is_empty(){
+        if !self.narrators.is_empty() {
             acum.push_str("Narrator('s): ");
             let mut n_iter = self.narrators.iter();
-            if let Some(narrator) = n_iter.next(){
+            if let Some(narrator) = n_iter.next() {
                 acum.push_str(narrator);
             }
-            for narrator in n_iter{
+            for narrator in n_iter {
                 acum.push_str(", ");
                 acum.push_str(narrator);
             }

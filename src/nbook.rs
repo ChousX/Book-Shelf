@@ -442,7 +442,7 @@ impl BookShelf {
         };
         self.books = dirs.iter().map(|p| Book::new(p.clone())).collect();
         for book in self.books.iter_mut() {
-            book.init(&self.book_config);
+            book.isavnit(&self.book_config);
         }
         self.ordering = self.get_order();
     }
