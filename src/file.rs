@@ -10,9 +10,8 @@ impl Librarian{
         Self::default()
     }
 
-    pub fn add<T: ToString>(&mut self, dir: T) {
-        let dir = PathBuf::from(dir.to_string());
-        self.roots.push(dir);
+    pub fn add<T: Into<PathBuf>>(&mut self, dir: T) {
+        self.roots.push(dir.into());
     }
 
     pub fn run(&self){
@@ -25,5 +24,16 @@ impl Librarian{
 impl Default for Librarian{
     fn default() -> Self {
         Self { roots: Vec::default() }
+    }
+}
+
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn basic(){
+
     }
 }

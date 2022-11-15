@@ -19,3 +19,12 @@ pub struct BookShelf{
     series: Vec<Series>,
 }
 
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn basic(){
+
+    }
+}
