@@ -1,3 +1,4 @@
+use crate::BookShelf;
 use crate::share::Id;
 use std::path::PathBuf;
 
@@ -10,13 +11,14 @@ impl Librarian{
         Self::default()
     }
 
-    pub fn add<T: Into<PathBuf>>(&mut self, dir: T) {
+    pub fn add<T: Into<PathBuf>>(&mut self, dir: T) -> &mut Self{
         self.roots.push(dir.into());
+        self
     }
 
-    pub fn run(&self){
+    pub fn run(&self, book_shelf: &mut BookShelf){
         for root in self.roots.iter(){
-
+            
         }
     }
 }
@@ -26,7 +28,7 @@ impl Default for Librarian{
         Self { roots: Vec::default() }
     }
 }
-
+use std::{env, fs};
 
 #[cfg(test)]
 mod tests{
@@ -34,6 +36,9 @@ mod tests{
 
     #[test]
     fn basic(){
-
+        
+        let mut alex = Librarian::new();
+        alex.add("test_data");
+        alex.run();
     }
 }
