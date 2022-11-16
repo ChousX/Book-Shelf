@@ -1,5 +1,6 @@
+
 mod book;
-mod file;
+pub mod file;
 mod publisher;
 mod series;
 mod narator;
@@ -11,7 +12,7 @@ use book::*;
 use publisher::*;
 use series::*;
 use narator::*;
-use file::*;
+
 
 pub struct BookShelf{
     pub books: Vec<Book>,

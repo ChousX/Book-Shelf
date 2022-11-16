@@ -1,7 +1,12 @@
 use crate::BookShelf;
 use crate::share::*;
+use std::cmp::Ordering;
+use std::convert::TryFrom;
+use std::ffi::OsStr;
 use std::fs;
+use std::fs::DirEntry;
 use std::path::PathBuf;
+use lofty::{read_from_path, Probe};
 
 /// A builder ish styled object that will catilog files comming in
 pub struct Librarian{
@@ -54,14 +59,51 @@ impl Librarian{
     out
     }
     pub fn run(&self, book_shelf: &mut BookShelf){
+
+        //so in therory all the dirs have no sub dirs
         for path in self.get_all().into_iter(){
             if path.is_dir(){
-                // look for .nfo
+                let dir = match fs::read_dir(path){
+                    Ok(dir) => dir,
+                    Err(_err) => {
+                        continue
+                    }
+                };
+                let mut files = std::collections::BinaryHeap::new();
+                for file in dir{
+                    if let Ok(file) = file{
+                        if let Ok(ext) = Extention::try_from(&file){
+                            files.push(OrdHelper(ext, file.path()));
+                        }
+                    }
+                }
+
+                for OrdHelper(ext, path) in files.drain(){
+                    match ext{
+                        Extention::Nfo => {
+
+                        },
+                        Extention::Cue => {
+
+                        },
+                        Extention::M4b => {
+
+                        }
+                        Extention::Mp3 => {
+
+                        },
+                        Extention::Jpg => {
+                            
+                        }
+                    }
+                }
+
             } else {
                 //examin meta data
 
             }
         }
+       
     }
 }
 
@@ -122,10 +164,51 @@ fn dir_containing_dir(dir: &PathBuf) -> Option<Vec<PathBuf>>{
         Some(out)
     }
 }
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub enum Extention{
+    Nfo = 4,
+    Cue = 3,
+    M4b = 2,
+    Mp3 = 1,
+    Jpg = 0,
+}
 
-enum FileType{
-    Dir(PathBuf),
-    File(PathBuf)
+impl TryFrom<&DirEntry> for Extention{
+    type Error = ();
+    fn try_from(value: &DirEntry) -> Result<Self, Self::Error> {
+        if let Some(value) = value.path().extension(){ 
+            if let Some(value) = value.to_str(){
+                info!("{}", value);
+                use Extention::*;
+                return Ok(match value{
+                    "nfo" => Nfo,
+                    "cue" => Cue,
+                    "m4b" => M4b,
+                    "mp3" => Mp3,
+                    "jpg" => Jpg,
+                    
+                    e=> {
+                        warn!("unsaported extention |.{}|", e);
+                        return Err(())}
+                })
+            }
+        }
+        Err(())
+    }
+}
+
+#[derive(PartialEq, Eq)]
+struct OrdHelper(Extention, PathBuf);
+impl PartialOrd for OrdHelper{
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.0.cmp(&other.0))
+    }
+}
+
+impl Ord for OrdHelper{
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.0.cmp(&other.0)
+    }
 }
 
 impl Default for Librarian{
@@ -136,12 +219,14 @@ impl Default for Librarian{
 
 
 
+
+
 #[cfg(test)]
 mod tests{
     use super::*;
 
     #[test]
-    fn basic(){
-    
+    fn try_from_OsStr_Extention(){
+        todo!()
     }
 }
