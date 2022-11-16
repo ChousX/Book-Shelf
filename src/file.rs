@@ -3,7 +3,7 @@ use crate::share::*;
 use std::fs;
 use std::path::PathBuf;
 
-
+/// A builder ish styled object that will catilog files comming in
 pub struct Librarian{
     roots: Vec<PathBuf>
 }
@@ -18,7 +18,7 @@ impl Librarian{
         self
     }
 
-    /// will make a vector containing book paths 
+    /// Will make a vector containing book paths 
     pub fn get_all(&self) -> Vec<PathBuf>{
             let mut out = Vec::new();
         for root in self.roots.iter(){
@@ -54,9 +54,44 @@ impl Librarian{
     out
     }
     pub fn run(&self, book_shelf: &mut BookShelf){
+        for path in self.get_all().into_iter(){
+            if path.is_dir(){
+                // look for .nfo
+            } else {
+                //examin meta data
 
+            }
+        }
     }
 }
+
+/*
+    Dir{
+        .m4b
+    }
+
+    Dir{
+        .m4b
+        .nfo
+    }
+
+    Dir{
+        .cue
+        .jpg
+        .m4b
+        .nfo
+    }
+
+    
+
+    Dir{
+        .jpg
+        .jpg
+        .cue
+        .m4b
+        .nfo
+    }
+ */
 
 fn dir_containing_dir(dir: &PathBuf) -> Option<Vec<PathBuf>>{
     debug_assert!(dir.is_dir());
@@ -71,7 +106,10 @@ fn dir_containing_dir(dir: &PathBuf) -> Option<Vec<PathBuf>>{
     for path in dirs{
         let path = match path {
             Ok(path) => path,
-            Err(_) => continue
+            Err(_) => {
+                warn!("path entry failed to unwrap");
+                continue
+            }
         };
         if path.path().is_dir(){
             out.push(path.path())

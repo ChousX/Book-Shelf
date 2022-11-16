@@ -14,9 +14,9 @@ use narator::*;
 use file::*;
 
 pub struct BookShelf{
-    books: Vec<Book>,
-    publishers: Vec<Publisher>,
-    series: Vec<Series>,
+    pub books: Vec<Book>,
+    pub publishers: Vec<Publisher>,
+    pub series: Vec<Series>,
 }
 
 #[cfg(test)]
