@@ -1,6 +1,6 @@
 use crate::share::*;
 
-pub struct Book{
+pub struct Book {
     titles: Vec<String>,
     authors_id: Vec<Id>,
     series_id: Option<Id>,
@@ -11,27 +11,23 @@ pub struct Book{
     book_type: Option<BookType>,
 }
 
-pub enum BookType{
-    Audio{
+pub enum BookType {
+    Audio {
         narators_id: Vec<Id>,
         deration: (),
     },
-    Writen{
+    Writen {
         pages: Option<u16>,
-        words: Option<u32>
+        words: Option<u32>,
     },
 
-    Graphic{
-
-    }
+    Graphic {},
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
 
     #[test]
-    fn basic(){
-
-    }
+    fn basic() {}
 }
