@@ -83,7 +83,6 @@ impl Librarian {
                         Extention::Nfo => {
                             if let Some(info) = Nfo::new(path) {
                                 //we got duh data
-
                             }
                         }
                         Extention::Cue => {}

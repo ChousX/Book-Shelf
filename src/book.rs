@@ -1,4 +1,4 @@
-use std::{path::PathBuf, default};
+use std::{default, path::PathBuf};
 
 use crate::share::*;
 use chrono::Duration;
@@ -8,7 +8,7 @@ use nfo::Nfo;
 pub struct Book {
     title: Option<String>,
     authors_id: Option<Id>,
-    
+
     series_id: Option<Id>,
     publisher_id: Option<Id>,
     published: Option<Date>,
@@ -18,7 +18,7 @@ pub struct Book {
 }
 
 /// Only comparing titales
-impl PartialEq for Book{
+impl PartialEq for Book {
     fn eq(&self, other: &Self) -> bool {
         self.title == other.title
     }
@@ -26,7 +26,6 @@ impl PartialEq for Book{
 
 #[derive(Debug, Default)]
 pub enum BookType {
-    
     Audio {
         narators_id: Option<Id>,
         deration: Duration,
@@ -39,7 +38,7 @@ pub enum BookType {
     Graphic {},
 
     #[default]
-    None
+    None,
 }
 
 #[cfg(test)]
