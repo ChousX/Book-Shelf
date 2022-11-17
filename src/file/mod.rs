@@ -93,10 +93,22 @@ impl Librarian {
                                 }
                             }
                         }
-                        Extention::Cue => {}
-                        Extention::M4b => {}
-                        Extention::Mp3 => {}
-                        Extention::Jpg => {}
+                        Extention::Cue => {
+                            // only really can grab the title
+                            todo!()
+                        }
+                        Extention::M4b => {
+                            // will need to look at meta data
+                            todo!()
+                        }
+                        Extention::Mp3 => {
+                            // if we do not have the title by this point we will have to pare the file name...
+                            todo!()
+                        }
+                        Extention::Jpg => {
+                            // far futer for gui
+                            
+                        }
                     }
                 }
             } else {
