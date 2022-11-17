@@ -1,22 +1,14 @@
-use std::path::{Path, PathBuf};
+use std::{convert::TryFrom, fs};
 
-// mod nbook;
-// use nbook::*;
-mod book_shelf;
-use book_shelf::*;
+use crate::file::Extention;
 
-const SAVE_PATH: &str = "saves/test.json";
+use book_shelf::{file::Librarian, *};
 fn main() {
-    let config = Config {
-            archives: vec![PathBuf::from("/run/media/aggelwick/Big Black/BB-Books")],
-            user_directed: false,
-            ..Default::default()
-        };
-    let bs = if let Some(book_shelf) = BookShelf::load_and_config(Path::new(SAVE_PATH), config.clone()) {
-        book_shelf
-    } else {
-        BookShelf::new(config)
-    };
-    println!("{}", bs);
-    bs.save(Path::new(SAVE_PATH));
+    let mut book_shelf = BookShelf::default();
+    let mut l = Librarian::new();
+    l.add(r"V:\Local-Books").run(&mut book_shelf);
+    for author in book_shelf.get_authors().into_iter(){
+        println!("{author}");
+    }
+    
 }
