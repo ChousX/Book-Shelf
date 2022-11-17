@@ -2,33 +2,22 @@ use std::{default, path::PathBuf};
 
 use crate::share::*;
 use chrono::Duration;
-use nfo::Nfo;
 
 #[derive(Debug, Default)]
 pub struct Book {
-    title: Option<String>,
-    authors_id: Option<Id>,
-
-    series_id: Option<Id>,
-    publisher_id: Option<Id>,
-    published: Option<Date>,
-    book_file: Option<PathBuf>,
-
-    book_type: Option<BookType>,
-}
-
-/// Only comparing titales
-impl PartialEq for Book {
-    fn eq(&self, other: &Self) -> bool {
-        self.title == other.title
-    }
+    pub author_id: Option<Id>,
+    pub series_id: Option<Id>,
+    pub publisher_id: Option<Id>,
+    pub published: Option<Date>,
+    pub book_file: Option<PathBuf>,
+    pub book_type: BookType,
 }
 
 #[derive(Debug, Default)]
 pub enum BookType {
     Audio {
         narators_id: Option<Id>,
-        deration: Duration,
+        duration: Option<Duration>,
     },
     Writen {
         pages: Option<u16>,

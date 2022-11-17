@@ -59,9 +59,7 @@ impl Librarian {
         }
         out
     }
-    pub fn run(&self) {
-        //, book_shelf: &mut BookShelf
-
+    pub fn run(&self, book_shelf: &mut BookShelf) {
         //so in therory all the dirs have no sub dirs
         for path in self.get_all().into_iter() {
             if path.is_dir() {
@@ -69,6 +67,8 @@ impl Librarian {
                     Ok(dir) => dir,
                     Err(_err) => continue,
                 };
+                //Heaps are neet and fits our needs here!
+                //sorta Heaps work as Priorty queues so not quite its ideal use
                 let mut files = std::collections::BinaryHeap::new();
                 for file in dir {
                     if let Ok(file) = file {
@@ -81,8 +81,16 @@ impl Librarian {
                 for OrdHelper(ext, path) in files.drain() {
                     match ext {
                         Extention::Nfo => {
-                            if let Some(info) = Nfo::new(path) {
+                            if let Some(info) = Nfo::new(path.clone()) {
                                 //we got duh data
+                                
+                                if let Some(title) = info.general.title.clone() {
+                                    if !book_shelf.books.exists(&title) {
+                                        book_shelf.add_book_nfo(info, &path);
+                                    } else {
+                                        //Todo: list all the books with out a finable title some ware for latter
+                                    }
+                                }
                             }
                         }
                         Extention::Cue => {}
