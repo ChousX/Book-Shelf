@@ -4,7 +4,7 @@ use lofty::{read_from_path, Probe};
 use nfo::Nfo;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use std::ffi::OsStr;
+
 use std::fs;
 use std::fs::DirEntry;
 use std::path::PathBuf;
@@ -82,7 +82,8 @@ impl Librarian {
                     match ext {
                         Extention::Nfo => {
                             if let Some(info) = Nfo::new(path) {
-                                println!("{:?}", info)
+                                //we got duh data
+
                             }
                         }
                         Extention::Cue => {}
