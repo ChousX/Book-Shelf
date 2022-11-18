@@ -81,17 +81,13 @@ impl BookShelf {
                                 let id = self.add_narator(string, Person::default());
                                 narators_id = Some(id);
                             }
-
-                            if duration.is_none(){
-                                duration_id = duration;
-                            }
+                        }
+                        
+                        if duration.is_none(){
+                            duration_id = duration;
                         }
 
-                        if duration_id.is_none(){
-                            if let Some(duration) = duration_id{
-                                
-                            }
-                        }
+                        
                     },
 
                     BookType::Writen { pages, words } => {
