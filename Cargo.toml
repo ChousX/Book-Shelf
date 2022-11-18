@@ -18,3 +18,4 @@ serde_json = "1.0"
 str_overlap = "0.4.3"
 nfo = { git = "https://github.com/ChousX/nfo.git"}
 chrono = "0.4.23"
+unicode-segmentation = "1.10.0"

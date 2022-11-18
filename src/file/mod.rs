@@ -9,6 +9,8 @@ use std::fs;
 use std::fs::DirEntry;
 use std::path::PathBuf;
 
+mod cue;
+
 /// A builder ish styled object that will catilog files comming in
 pub struct Librarian {
     roots: Vec<PathBuf>,
@@ -95,6 +97,7 @@ impl Librarian {
                         }
                         Extention::Cue => {
                             // only really can grab the title
+                            
                             todo!()
                         }
                         Extention::M4b => {
