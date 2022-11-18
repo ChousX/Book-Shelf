@@ -83,21 +83,20 @@ impl Librarian {
                 for OrdHelper(ext, path) in files.drain() {
                     match ext {
                         Extention::Nfo => {
-                            
                             if let Some(info) = Nfo::new(path.clone()) {
                                 //we got duh data
-                                
+
                                 if let Some(title) = info.general.title.clone() {
                                     if !book_shelf.books.exists(&title) {
                                         book_shelf.add_book_nfo(info, &path);
                                         book_found = Some(title);
-                                    } 
+                                    }
                                 }
                             }
                         }
                         Extention::Cue => {
                             // only really can grab the title
-                            
+
                             todo!()
                         }
                         Extention::M4b => {
@@ -110,7 +109,6 @@ impl Librarian {
                         }
                         Extention::Jpg => {
                             // far futer for gui
-                            
                         }
                     }
                 }
