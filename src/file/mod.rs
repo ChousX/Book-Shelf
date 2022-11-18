@@ -79,19 +79,19 @@ impl Librarian {
                         }
                     }
                 }
-
+                let mut book_found = None;
                 for OrdHelper(ext, path) in files.drain() {
                     match ext {
                         Extention::Nfo => {
+                            
                             if let Some(info) = Nfo::new(path.clone()) {
                                 //we got duh data
                                 
                                 if let Some(title) = info.general.title.clone() {
                                     if !book_shelf.books.exists(&title) {
                                         book_shelf.add_book_nfo(info, &path);
-                                    } else {
-                                        //Todo: list all the books with out a finable title some ware for latter
-                                    }
+                                        book_found = Some(title);
+                                    } 
                                 }
                             }
                         }

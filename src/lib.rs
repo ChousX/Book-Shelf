@@ -32,20 +32,7 @@ impl BookShelf{
 
 
 impl BookShelf {
-    pub fn add_book(
-        &mut self,
-        title: String,
-        author: Option<Person>,
-        series: Option<Series>,
-        publisher: Option<Publisher>,
-        published: Option<Date>,
-        book_file: Option<PathBuf>,
-        book_type: Option<BookType>,
-    ) -> Id {
-        todo!()
-    }
 
-    ///should only be used when you know book does not exist
     pub fn add_book_nfo(&mut self, mut nfo: Nfo, path: &Path) {
         let book_file = Some(path.into());
         if let Some(title) = nfo.general.title {
