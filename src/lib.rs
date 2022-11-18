@@ -29,7 +29,22 @@ impl BookShelf{
         self.authors.get_all_keys().collect()
     }
 }
+impl BookShelf{
+    fn find<T>(container :&Container<T>, item: String) -> Option<&T>{
+        container.find(item)
+    }
 
+    fn find_book<S: ToString>(&self, item: S) -> Option<&Book>{
+        let item = item.to_string();
+        self.books.find(&item)
+    }
+
+
+    fn find_mut<T>(container :&mut Container<T>, item: String) -> Option<&mut T>{
+        container.fimd_mut(item)
+    }
+
+}
 
 impl BookShelf {
 
@@ -185,7 +200,7 @@ struct Container<T> {
     index: HashMap<String, usize>,
     data: Vec<T>,
 }
-impl<Data> Container<Data> {
+impl<D> Container<D> {
     pub fn new() -> Self {
         Self {
             index: HashMap::new(),
@@ -196,7 +211,7 @@ impl<Data> Container<Data> {
     pub fn get_all_keys(&self) -> Keys<String, usize>{
         self.index.keys()
     }
-    pub fn add<Str>(&mut self, key: Str, data: Data) -> Id
+    pub fn add<Str>(&mut self, key: Str, data: D) -> Id
     where
         Str: ToString,
     {
@@ -212,7 +227,7 @@ impl<Data> Container<Data> {
         }
     }
 
-    pub fn get_by_key<Str>(&self, key: Str) -> &Data
+    pub fn get_by_key<Str>(&self, key: Str) -> &D
     where
         Str: ToString,
     {
@@ -220,7 +235,7 @@ impl<Data> Container<Data> {
         let id = self.index.get(&key).expect("asked for data tjat does nto exist");
         self.get_by_id(*id)
     }
-    pub fn get_by_key_mut<Str>(&mut self, key: Str) -> &mut Data
+    pub fn get_by_key_mut<Str>(&mut self, key: Str) -> &mut D
     where
         Str: ToString,
     {
@@ -229,11 +244,11 @@ impl<Data> Container<Data> {
         self.get_by_id_mut(*id)
     }
 
-    pub fn get_by_id(&self, id: Id) -> &Data {
+    pub fn get_by_id(&self, id: Id) -> &D {
         &self.data[id as usize]
     }
 
-    pub fn get_by_id_mut(&mut self, id: Id) -> &mut Data {
+    pub fn get_by_id_mut(&mut self, id: Id) -> &mut D {
         &mut self.data[id as usize]
     }
 
@@ -253,6 +268,23 @@ impl<Data> Container<Data> {
 
 }
 
+impl <D> Container<D>{
+    pub fn find<S: ToString>(&self, key: S) -> Option<&D>{
+        if let Some(key) = self.get_id(key){
+            Some(self.get_by_id(key))
+        } else {
+            None
+        }
+    }
+
+    pub fn fimd_mut<S: ToString>(&mut self, key: S) -> Option<&mut D>{
+        if let Some(key) = self.get_id(key){
+            Some(self.get_by_id_mut(key))
+        } else {
+            None
+        }
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
