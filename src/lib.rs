@@ -14,10 +14,7 @@ use book::*;
 use person::*;
 use publisher::*;
 use series::*;
-/*
-    to sleepy to do this but I think we should revam the book shelf
-    convert every thing to hashtables and use the unquice data as the key
-    */
+
 #[derive(Default, Debug)]
 pub struct BookShelf {
     books: Container<Book>,
@@ -80,7 +77,7 @@ impl BookShelf {
 
                 let book_type = BookType::Audio { narators_id, duration};
 
-                // ok we have all the ids we need and we slapped them in to a Book
+                // So still missing Series and Published
                 let book = Book{
                     author_id,
                     series_id: None,
@@ -91,8 +88,19 @@ impl BookShelf {
                 };
                 
                 let book_id = self.books.add(title, book);
-                //Todo
+                
                 //now we have the book id we need to add it back the fields that refrence book
+                if let Some(id) = author_id{
+                    self.add_book_to_author(book_id, id);
+                }
+
+                if let Some(id) = publisher_id{
+                    self.add_book_to_publisher(book_id, id)
+                }
+
+                if let Some(id) = narators_id{
+                    self.add_book_to_narator(book_id, id);
+                }
 
             } else {
                 //comare and update None feilds
@@ -122,6 +130,26 @@ impl BookShelf {
         self.series.add(key, series)
     }
 
+    fn add_book_to_author(&mut self, book: Id, author: Id){
+        let person = self.authors.get_by_id_mut(author);
+        //I don't think we will end up with multible book entryes so not going to mess with it for now
+        person.works.push(book);
+    }
+
+    fn add_book_to_publisher(&mut self, book: Id, publisher: Id){
+        let publisher = self.publishers.get_by_id_mut(publisher);
+        publisher.works.push(book);
+    }
+
+    fn add_book_to_series(&mut self, book: Id, series: Id){
+        let series = self.series.get_by_id_mut(series);
+        series.book_ids.push(book)
+    }
+
+    fn add_book_to_narator(&mut self, book: Id, narator: Id){
+        let narator = self.narators.get_by_id_mut(narator);
+        narator.works.push(book)
+    }
 }
 
 #[derive(Default, Debug)]

@@ -1,6 +1,6 @@
 #[derive(Default, Debug)]
 pub struct Series {
-    book_ids: Vec<usize>,
+    pub book_ids: Vec<usize>,
 }
 
 #[cfg(test)]

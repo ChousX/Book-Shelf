@@ -1,7 +1,7 @@
 use crate::share::Id;
 #[derive(Debug, Default)]
 pub struct Publisher {
-    books: Option<Vec<Id>>,
+    pub works: Vec<Id>,
 }
 
 #[cfg(test)]
