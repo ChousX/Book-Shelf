@@ -1,7 +1,3 @@
-use std::{convert::TryFrom, fs};
-
-use crate::file::Extention;
-
 use book_shelf::{file::Librarian, *};
 fn main() {
     let mut book_shelf = BookShelf::default();
@@ -10,5 +6,7 @@ fn main() {
     for author in book_shelf.get_authors().into_iter(){
         println!("{author}");
     }
-    
+    if cfg!(cli){
+        println!("woop")
+    }
 }
