@@ -55,8 +55,53 @@ impl BookShelf {
             let publised = nfo.general.copyright;
             let narator = nfo.general.read_by;
             let duration = nfo.general.duration;
-            if !self.books.exists(&title){
+
+            if let Some(book_id) = self.books.get_id(&title){
+                //compare and update None feilds
+                //author
+                if self.books.get_by_id(book_id).author_id.is_none() && author.is_some(){
+                    if let Some(author) = author{
+                        let id = self.add_author(author, Person::default());
+                        self.books.get_by_id_mut(book_id).author_id = Some(id);
+                    }
+                }
                 
+                //publisher
+                if self.books.get_by_id(book_id).publisher_id.is_none() && publisher.is_some(){
+                    if let Some(publisher) = publisher{
+                        let id = self.add_publisher(publisher, Publisher::default());
+                        self.books.get_by_id_mut(book_id).publisher_id = Some(id);
+                    }
+                }
+
+                match self.books.get_by_id_mut(book_id).book_type{
+                    BookType::Audio { mut narators_id, duration: mut duration_id } => {
+                        if narators_id.is_none(){
+                            if let Some(string) = narator{
+                                let id = self.add_narator(string, Person::default());
+                                narators_id = Some(id);
+                            }
+
+                            if duration.is_none(){
+                                duration_id = duration;
+                            }
+                        }
+
+                        if duration_id.is_none(){
+                            if let Some(duration) = duration_id{
+                                
+                            }
+                        }
+                    },
+
+                    BookType::Writen { pages, words } => {
+
+                    },
+                    BookType::Graphic {  } => {},
+                    BookType::None => {}
+                }
+            } else {
+                 
                 let author_id = if let Some(author) = author{
                     Some(self.add_author(author, Person::default()))
                 } else{
@@ -102,9 +147,9 @@ impl BookShelf {
                     self.add_book_to_narator(book_id, id);
                 }
 
-            } else {
-                //comare and update None feilds
+                
             }
+
             //for now lets assume its an audio book
             
         }
