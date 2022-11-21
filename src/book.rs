@@ -11,7 +11,6 @@ pub struct InerBook {
     pub publisher_id: Option<Id>,
     pub published: Option<Date>,
     pub book_file: Option<PathBuf>,
-    pub book_type: BookType,
 }
 
 pub struct AudioBook {
@@ -40,21 +39,45 @@ impl From<Nfo> for AudioBook {
     }
 }
 
+impl Book for AudioBook {
+    fn book_type(&self) -> BookType {
+        BookType::Audio
+    }
+}
+
 #[derive(Debug, Default)]
 pub enum BookType {
-    Audio {
-        narators_id: Option<Id>,
-        duration: Option<Duration>,
-    },
-    Writen {
-        pages: Option<u16>,
-        words: Option<u32>,
-    },
-
-    Graphic {},
-
+    Audio,
     #[default]
-    None,
+    None
+}
+
+pub trait Book {
+    fn title(&self) -> Option<String>{
+        None
+    }
+    fn author(&self) -> Option<String>{
+        None
+    }
+    fn series(&self) -> Option<String>{
+        None
+    }
+    fn publisher(&self) -> Option<String>{
+        None
+    }
+    fn copyright(&self) -> Option<String>{
+        None
+    }
+    fn path(&self) -> Option<PathBuf>{
+        None
+    }
+    fn narator(&self) -> Option<String>{
+        None
+    }
+    fn duration(&self) -> Option<Duration>{
+        None
+    }
+    fn book_type(&self) -> BookType;
 }
 
 #[cfg(test)]

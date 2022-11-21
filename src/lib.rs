@@ -1,197 +1,31 @@
-mod book;
-pub mod file;
-mod person;
-mod publisher;
-mod series;
-pub mod share;
+use std::{path::PathBuf, collections::{HashMap, hash_map::Keys}};
 
-use std::{
-    collections::{hash_map::Keys, HashMap},
-    path::{Path, PathBuf},
-};
+use chrono::Duration;
 
-use nfo::Nfo;
-use share::*;
+type Id = usize;
 
-use book::*;
-use person::*;
-use publisher::*;
-use series::*;
-
-#[derive(Default, Debug)]
-pub struct BookShelf {
-    books: Container<InerBook>,
-    publishers: Container<Publisher>,
-    series: Container<Series>,
-    narators: Container<Person>,
-    authors: Container<Person>,
+pub struct Book{
+    pub title: Option<String>,
+    pub author: Option<String>,
+    pub series: Option<String>,
+    pub publisher: Option<String>,
+    pub copyright: Option<String>,
+    pub book_file: Option<PathBuf>,
+    pub narator: Option<String>,
+    pub duration: Option<Duration>,
 }
 
-impl BookShelf {
-    pub fn get_authors(&self) -> Vec<&String> {
-        self.authors.get_all_keys().collect()
-    }
-}
-impl BookShelf {
-    fn find<T>(container: &Container<T>, item: String) -> Option<&T> {
-        container.find(item)
-    }
+pub struct BookNode{
 
-    fn find_book<S: ToString>(&self, item: S) -> Option<&InerBook> {
-        let item = item.to_string();
-        self.books.find(&item)
-    }
-
-    fn find_mut<T>(container: &mut Container<T>, item: String) -> Option<&mut T> {
-        container.fimd_mut(item)
-    }
 }
 
-impl BookShelf {
-    pub fn add_book_nfo(&mut self, mut nfo: Nfo, path: &Path) {
-        let book_file = Some(path.into());
-        if let Some(title) = nfo.general.title {
-            let author = nfo.general.author;
-            //missing series form nfo
-            let publisher = nfo.general.publisher;
-            let publised = nfo.general.copyright;
-            let narator = nfo.general.read_by;
-            let duration = nfo.general.duration;
 
-            if let Some(book_id) = self.books.get_id(&title) {
-                //compare and update None feilds
-                //author
-                if self.books.get_by_id(book_id).author_id.is_none() && author.is_some() {
-                    if let Some(author) = author {
-                        let id = self.add_author(author, Person::default());
-                        self.books.get_by_id_mut(book_id).author_id = Some(id);
-                    }
-                }
-
-                //publisher
-                if self.books.get_by_id(book_id).publisher_id.is_none() && publisher.is_some() {
-                    if let Some(publisher) = publisher {
-                        let id = self.add_publisher(publisher, Publisher::default());
-                        self.books.get_by_id_mut(book_id).publisher_id = Some(id);
-                    }
-                }
-
-                match self.books.get_by_id_mut(book_id).book_type {
-                    BookType::Audio {
-                        mut narators_id,
-                        duration: mut duration_id,
-                    } => {
-                        if narators_id.is_none() {
-                            if let Some(string) = narator {
-                                let id = self.add_narator(string, Person::default());
-                                narators_id = Some(id);
-                            }
-                        }
-
-                        if duration.is_none() {
-                            duration_id = duration;
-                        }
-                    }
-
-                    BookType::Writen { pages, words } => {}
-                    BookType::Graphic {} => {}
-                    BookType::None => {}
-                }
-            } else {
-                let author_id = if let Some(author) = author {
-                    Some(self.add_author(author, Person::default()))
-                } else {
-                    None
-                };
-
-                let publisher_id = if let Some(publisher) = publisher {
-                    Some(self.add_publisher(publisher, Publisher::default()))
-                } else {
-                    None
-                };
-
-                let narators_id = if let Some(publisher) = narator {
-                    Some(self.add_narator(publisher, Person::default()))
-                } else {
-                    None
-                };
-
-                let book_type = BookType::Audio {
-                    narators_id,
-                    duration,
-                };
-
-                // So still missing Series and Published
-                let book = InerBook {
-                    author_id,
-                    series_id: None,
-                    publisher_id,
-                    published: None,
-                    book_file,
-                    book_type,
-                };
-
-                let book_id = self.books.add(title, book);
-
-                //now we have the book id we need to add it back the fields that refrence book
-                if let Some(id) = author_id {
-                    self.add_book_to_author(book_id, id);
-                }
-
-                if let Some(id) = publisher_id {
-                    self.add_book_to_publisher(book_id, id)
-                }
-
-                if let Some(id) = narators_id {
-                    self.add_book_to_narator(book_id, id);
-                }
-            }
-
-            //for now lets assume its an audio book
-        }
-    }
-
-    pub fn add_author<Str: ToString>(&mut self, name: Str, person: Person) -> Id {
-        let key = name.to_string();
-        self.authors.add(key, person)
-    }
-
-    pub fn add_narator<Str: ToString>(&mut self, name: Str, person: Person) -> Id {
-        let key = name.to_string();
-        self.narators.add(key, person)
-    }
-
-    pub fn add_publisher<Str: ToString>(&mut self, name: Str, publisher: Publisher) -> Id {
-        let key = name.to_string();
-        self.publishers.add(key, publisher)
-    }
-
-    pub fn add_series<Str: ToString>(&mut self, name: Str, series: Series) -> Id {
-        let key = name.to_string();
-        self.series.add(key, series)
-    }
-
-    fn add_book_to_author(&mut self, book: Id, author: Id) {
-        let person = self.authors.get_by_id_mut(author);
-        //I don't think we will end up with multible book entryes so not going to mess with it for now
-        person.works.push(book);
-    }
-
-    fn add_book_to_publisher(&mut self, book: Id, publisher: Id) {
-        let publisher = self.publishers.get_by_id_mut(publisher);
-        publisher.works.push(book);
-    }
-
-    fn add_book_to_series(&mut self, book: Id, series: Id) {
-        let series = self.series.get_by_id_mut(series);
-        series.book_ids.push(book)
-    }
-
-    fn add_book_to_narator(&mut self, book: Id, narator: Id) {
-        let narator = self.narators.get_by_id_mut(narator);
-        narator.works.push(book)
-    }
+pub struct BookShelf{
+    books: Container<BookNode>,
+    publishers: Container<>
 }
+
+
 
 #[derive(Default, Debug)]
 struct Container<T> {
@@ -209,6 +43,7 @@ impl<D> Container<D> {
     pub fn get_all_keys(&self) -> Keys<String, usize> {
         self.index.keys()
     }
+
     pub fn add<Str>(&mut self, key: Str, data: D) -> Id
     where
         Str: ToString,
@@ -225,18 +60,21 @@ impl<D> Container<D> {
         }
     }
 
-    pub fn get_by_key<Str>(&self, key: Str) -> &D
+    pub fn get_by_key<Str>(&self, key: Str) -> Option<&D>
     where
         Str: ToString,
     {
         let key = key.to_string();
-        let id = self
+        if let Some(id)self
             .index
-            .get(&key)
-            .expect("asked for data tjat does nto exist");
-        self.get_by_id(*id)
+            .get(&key){
+                self.data.get(id)
+            } else {
+                None
+            }
     }
-    pub fn get_by_key_mut<Str>(&mut self, key: Str) -> &mut D
+
+    pub fn get_by_key_mut<Str>(&mut self, key: Str) -> Option<&mut D>
     where
         Str: ToString,
     {
@@ -248,12 +86,12 @@ impl<D> Container<D> {
         self.get_by_id_mut(*id)
     }
 
-    pub fn get_by_id(&self, id: Id) -> &D {
-        &self.data[id as usize]
+    pub fn get_by_id(&self, id: Id) -> Option<&D> {
+        self.data.get(id)
     }
 
-    pub fn get_by_id_mut(&mut self, id: Id) -> &mut D {
-        &mut self.data[id as usize]
+    pub fn get_by_id_mut(&mut self, id: Id) -> Option<&mut D> {
+        self.data.get_mut(id)
     }
 
     pub fn get_id<Str: ToString>(&self, key: Str) -> Option<usize> {
@@ -274,7 +112,7 @@ impl<D> Container<D> {
 impl<D> Container<D> {
     pub fn find<S: ToString>(&self, key: S) -> Option<&D> {
         if let Some(key) = self.get_id(key) {
-            Some(self.get_by_id(key))
+            Some(self.get_by_id(key)?)
         } else {
             None
         }
@@ -282,16 +120,9 @@ impl<D> Container<D> {
 
     pub fn fimd_mut<S: ToString>(&mut self, key: S) -> Option<&mut D> {
         if let Some(key) = self.get_id(key) {
-            Some(self.get_by_id_mut(key))
+            Some(self.get_by_id_mut(key)?)
         } else {
             None
         }
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn basic() {}
 }
