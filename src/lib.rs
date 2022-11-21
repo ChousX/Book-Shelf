@@ -19,13 +19,27 @@ pub struct BookNode{
 
 }
 
+pub struct Organisation{
+
+}
 
 pub struct BookShelf{
     books: Container<BookNode>,
-    publishers: Container<>
+    publishers: Container<Organisation>
 }
 
+pub trait Collection{
+    fn get_name(&self);
+    fn works(&mut self) -> &mut Vec<Id>;
+    fn add_id(&mut self, id: Id){
+        self.works().push(id);
+    }
 
+}
+
+pub struct Works<'a, T>{
+    container: &'a Vec<,
+}
 
 #[derive(Default, Debug)]
 struct Container<T> {
