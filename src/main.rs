@@ -1,4 +1,3 @@
+use book_shelf::*;
 
-fn main(){
-
-}
+fn main() {}
