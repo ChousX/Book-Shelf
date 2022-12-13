@@ -1,6 +1,6 @@
+use crate::person::Person;
 use crate::share::*;
 use crate::BookShelf;
-use lofty::{read_from_path, Probe};
 use nfo::Nfo;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
@@ -79,7 +79,6 @@ impl Librarian {
                         }
                     }
                 }
-                let mut book_found = None;
                 for OrdHelper(ext, path) in files.drain() {
                     match ext {
                         Extention::Nfo => {
@@ -88,25 +87,28 @@ impl Librarian {
                                 //we got duh data
                                 
                                 if let Some(title) = info.general.title.clone() {
-                                    if !book_shelf.books.exists(&title) {
+                                    if book_shelf.books.exists(&title) {
+                                    } else {
                                         book_shelf.add_book_nfo(info, &path);
-                                        book_found = Some(title);
-                                    } 
+                                    }
                                 }
                             }
                         }
-                        Extention::Cue => {
-                            // only really can grab the title
-                            
-                            todo!()
-                        }
+                        Extention::Cue => {}
                         Extention::M4b => {
+                            let mut tag = mp4ameta::Tag::read_from_path(path).unwrap();
+                            if let Some(a) = tag.artist(){
+                                if  book_shelf.authors.exists(a){
+                                    book_shelf.add_author(a, Person::default());
+                                }
+
+                            }
                             // will need to look at meta data
-                            todo!()
+                            // todo!()
                         }
                         Extention::Mp3 => {
                             // if we do not have the title by this point we will have to pare the file name...
-                            todo!()
+                            // todo!()
                         }
                         Extention::Jpg => {
                             // far futer for gui
