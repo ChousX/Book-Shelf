@@ -74,6 +74,14 @@ impl BookShelf {
         }
     }
 
+    pub fn get_book(&self, title: &str) -> Option<Book>{
+        if let Some(stored_book) = self.books.get(title){
+            Some(self.to_book(title, stored_book))
+        } else {
+            None
+        }
+    }
+
     pub fn get_books(&self) -> Books {
         let mut data = Vec::with_capacity(self.books.len());
         for (title, stord_book) in self.books.iter() {
