@@ -4,10 +4,9 @@ use std::collections::HashMap;
 #[derive(Default)]
 pub struct BookShelf{
     books: HashMap<String, StordBook>,
+    authour: Container<String>,
+    narrator: Container<String>,
 }
-//I need a way to store data
-//data.add(book) -> Id,
-//data.get(Id) -> Book
  
 pub struct Container<T>{
     map: HashMap<Id, T>,
@@ -25,16 +24,20 @@ impl <T: PartialEq> Container<T>{
         }
     }
 
+
+
+    pub fn find_by_value(&self, input: &T) -> Option<Id>{
+        self.map.iter().find_map(|(key, val)| if val == input{ return Some(*key)} else {return None})
+    }
+}
+
+impl <T> Container<T>{
     pub fn get(&self, id: Id) -> Option<&T>{
         self.map.get(&id)
     }
 
     pub fn get_mut(&mut self, id: Id) -> Option<&mut T>{
         self.map.get_mut(&id)
-    }
-
-    fn find_by_value(&self, input: &T) -> Option<Id>{
-        self.map.iter().find_map(|(key, val)| if val == input{ return Some(*key)} else {return None})
     }
 }
 
@@ -50,8 +53,21 @@ impl BookShelf{
     }
 
     pub fn add(&mut self, book: Book){
+        //init the internal sorage_book
         let mut in_book = StordBook::default();
 
+        //extract authour if exists
+        if let Some(author) = book.authour{
+            let id = self.authour.add(author);
+            in_book.authour = Some(id);
+        }
+
+        //extract narrator if exists
+        if let Some(narrator) = book.narrator{
+            let id = self.narrator.add(narrator);
+            in_book.narrator = Some(id);
+        }
+        
         // assining path to stored book
         if book.path.is_some(){
             in_book.path = book.path;
@@ -62,6 +78,40 @@ impl BookShelf{
         
     }
 
+    fn to_book(&self, title: &str) -> Option<Book>{
+        if let Some(stored_book) = self.books.get(title){
+            let authour = if let Some(id) = stored_book.authour {
+                if let Some(val) = self.authour.get(id){
+                    Some(val.clone())
+                } else {
+                    debug_assert!(false);
+                    None
+                }
+            } else {
+                None
+            };
+
+            let narrator = if let Some(id) = stored_book.narrator {
+                if let Some(val) = self.narrator.get(id){
+                    Some(val.clone())
+                } else {
+                    debug_assert!(false);
+                    None
+                }
+            } else {
+                None
+            };
+            Some(Book{
+                title: title.to_string(),
+                authour,
+                narrator,
+                path: stored_book.path.clone(),
+            })
+        } else {
+            None
+        }
+    }
+
     pub fn get(&self, search: Search) -> Option<Book>{
         todo!()
     }
@@ -70,13 +120,17 @@ impl BookShelf{
 #[derive(Default)]
 pub struct Book{
     pub title: String,
+    pub authour: Option<String>,
+    pub narrator: Option<String>,
     pub path: Option<PathBuf>,
 }
 
 pub type Id = usize;
-
+pub type Data = Option<Id>;
 #[derive(Default)]
 pub struct StordBook{
+    pub authour: Data,
+    pub narrator: Data,
     pub path: Option<PathBuf>,
 }
 
