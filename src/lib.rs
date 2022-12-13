@@ -34,7 +34,7 @@ impl BookShelf {
             in_book.path = book.path;
         }
 
-        if book.description.is_some(){
+        if book.description.is_some() {
             in_book.description = book.description;
         }
 
@@ -61,12 +61,10 @@ impl BookShelf {
                 debug_assert!(false);
                 None
             }
-
         } else {
             None
         };
 
-        
         Book {
             title: title.to_string(),
             authour,
@@ -76,32 +74,33 @@ impl BookShelf {
         }
     }
 
-    pub fn get_books(&self) -> Books{
+    pub fn get_books(&self) -> Books {
         let mut data = Vec::with_capacity(self.books.len());
-        for (title, stord_book) in self.books.iter(){
+        for (title, stord_book) in self.books.iter() {
             data.push(self.to_book(title, stord_book));
         }
         Books { data }
-    } 
+    }
 
     pub fn search(&self, search: Search) -> Option<Book> {
-        match search{
+        match search {
             Search::Title(title) => {
-                if let Some(data) = self.books.get(title){
+                if let Some(data) = self.books.get(title) {
                     Some(self.to_book(title, data))
                 } else {
                     None
                 }
             }
-            _ => None
+            _ => None,
         }
     }
 }
 
-pub struct Books{
-    data: Vec<Book>
+pub struct Books {
+    data: Vec<Book>,
 }
-impl Iterator for Books{
+
+impl Iterator for Books {
     type Item = Book;
     fn next(&mut self) -> Option<Self::Item> {
         self.data.pop()
@@ -171,10 +170,9 @@ pub struct StordBook {
     pub authour: Data,
     pub narrator: Data,
     pub path: Option<PathBuf>,
-    pub description: Option<String>
+    pub description: Option<String>,
 }
 
 pub enum Search<'a> {
-    
     Title(&'a str),
 }
