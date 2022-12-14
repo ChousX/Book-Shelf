@@ -1,11 +1,14 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use chrono::Duration;
+
 #[derive(Default)]
 pub struct BookShelf {
     books: HashMap<String, StordBook>,
     authour: Container<String>,
     narrator: Container<String>,
+    series: Container<String>,
 }
 
 impl BookShelf {
@@ -29,6 +32,12 @@ impl BookShelf {
             in_book.narrator = Some(id);
         }
 
+        if let Some((series, number)) = book.series {
+            let id = self.series.add(series);
+            in_book.narrator = Some(id);
+            in_book.series_number = number;
+        }
+
         // assining path to stored book
         if book.path.is_some() {
             in_book.path = book.path;
@@ -36,6 +45,14 @@ impl BookShelf {
 
         if book.description.is_some() {
             in_book.description = book.description;
+        }
+
+        if book.duration.is_some() {
+            in_book.duration = book.duration;
+        }
+
+        if book.image.is_some() {
+            in_book.image = book.image;
         }
 
         // inserting stored book into self
@@ -65,12 +82,26 @@ impl BookShelf {
             None
         };
 
+        let series = if let Some(id) = stored_book.series {
+            if let Some(val) = self.series.get(id) {
+                Some((val.clone(), stored_book.series_number))
+            } else {
+                debug_assert!(false);
+                None
+            }
+        } else {
+            None
+        };
+
         Book {
             title: title.to_string(),
             authour,
             narrator,
             path: stored_book.path.clone(),
             description: stored_book.description.clone(),
+            duration: stored_book.duration.clone(),
+            series,
+            image: stored_book.image.clone(),
         }
     }
 
@@ -168,6 +199,9 @@ pub struct Book {
     pub narrator: Option<String>,
     pub path: Option<PathBuf>,
     pub description: Option<String>,
+    pub duration: Option<Duration>,
+    pub series: Option<(String, u8)>,
+    pub image: Option<PathBuf>,
 }
 
 pub type Id = usize;
@@ -179,6 +213,10 @@ pub struct StordBook {
     pub narrator: Data,
     pub path: Option<PathBuf>,
     pub description: Option<String>,
+    pub duration: Option<Duration>,
+    pub series: Data,
+    pub series_number: u8,
+    pub image: Option<PathBuf>,
 }
 
 pub enum Search<'a> {
