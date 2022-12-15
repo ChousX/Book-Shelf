@@ -1,4 +1,4 @@
-use super::{AppState, View, AppEvent};
+use super::{AppEvent, AppState, View};
 use eframe::egui;
 
 #[derive(Default)]

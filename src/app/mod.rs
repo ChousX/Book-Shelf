@@ -25,14 +25,14 @@ impl Default for App {
     fn default() -> Self {
         let default_image =
             RetainedImage::from_image_bytes("default image", include_bytes!("no_pic.png")).unwrap();
-         Self {
+        Self {
             state: AppState::default(),
             book_shelf: BookShelf::default(),
             book_list: Vec::default(),
             options: Options::default(),
             book_manager: BookManger::default(),
             default_image,
-         }
+        }
     }
 }
 
@@ -61,23 +61,39 @@ impl App {
     }
     pub fn test() -> Self {
         let mut book_shelf = BookShelf::default();
-        for (i, (author, narrator)) in [( "Jax", "Jo"), ("Bob", "Alex"), ("Cam", "Coal"), ( "Jax", "Jo"), ("Bob", "Alex"), ("Cam", "Bob"), ( "Jim", "Jo"), ("Bob", "Alex"), ("Cam", "Coal"), ].into_iter().enumerate(){
-            book_shelf.add(Book{
+        for (i, (author, narrator)) in [
+            ("Jax", "Jo"),
+            ("Bob", "Alex"),
+            ("Cam", "Coal"),
+            ("Jax", "Jo"),
+            ("Bob", "Alex"),
+            ("Cam", "Bob"),
+            ("Jim", "Jo"),
+            ("Bob", "Alex"),
+            ("Cam", "Coal"),
+            ("Jax", "Jo"),
+            ("Bob", "Alex"),
+            ("Cam", "Coal"),
+            ("Jax", "Jo"),
+            ("Bob", "Alex"),
+            ("Cam", "Bob"),
+            ("Jim", "Jo"),
+            ("Bob", "Alex"),
+            ("Cam", "Coal"),
+        ]
+        .iter()
+        .enumerate()
+        {
+            book_shelf.add(Book {
                 title: format!("Title: {i}"),
                 authour: Some(author.to_string()),
                 narrator: Some(narrator.to_string()),
                 ..Default::default()
             });
         }
-        let default_image =
-            RetainedImage::from_image_bytes("default image", include_bytes!("no_pic.png")).unwrap();
         let mut out = Self {
-            state: AppState::default(),
             book_shelf,
-            book_list: Vec::default(),
-            options: Options::default(),
-            book_manager: BookManger::default(),
-            default_image,
+            ..Default::default()
         };
         out.book_list_title();
         out
@@ -92,6 +108,7 @@ impl App {
             _ => {}
         }
     }
+
     fn switch_states(&mut self, state: AppState) {
         if self.state == state {
             return;

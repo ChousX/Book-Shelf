@@ -9,9 +9,5 @@ fn main() {
 
         ..Default::default()
     };
-    let app = eframe::run_native(
-        "Book Shelf",
-        options,
-        Box::new(|_| Box::new(App::test())),
-    );
+    let app = eframe::run_native("Book Shelf", options, Box::new(|_| Box::new(App::test())));
 }
