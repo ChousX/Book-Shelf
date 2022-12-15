@@ -1,7 +1,10 @@
-use std::collections::HashMap;
-use std::path::PathBuf;
-
 use chrono::Duration;
+use eframe::egui::Ui;
+use egui_extras::RetainedImage;
+use image::open;
+use std::collections::HashMap;
+use std::fs::File;
+use std::path::PathBuf;
 
 #[derive(Default)]
 pub struct BookShelf {
@@ -51,8 +54,8 @@ impl BookShelf {
             in_book.duration = book.duration;
         }
 
-        if book.image.is_some() {
-            in_book.image = book.image;
+        if book.image_path.is_some() {
+            in_book.image_path = book.image_path;
         }
 
         // inserting stored book into self
@@ -101,12 +104,13 @@ impl BookShelf {
             description: stored_book.description.clone(),
             duration: stored_book.duration.clone(),
             series,
-            image: stored_book.image.clone(),
+            image_path: stored_book.image_path.clone(),
+            image: None,
         }
     }
 
-    pub fn get_book(&self, title: &str) -> Option<Book>{
-        if let Some(stored_book) = self.books.get(title){
+    pub fn get_book(&self, title: &str) -> Option<Book> {
+        if let Some(stored_book) = self.books.get(title) {
             Some(self.to_book(title, stored_book))
         } else {
             None
@@ -135,6 +139,7 @@ impl BookShelf {
     }
 }
 
+#[derive(Default)]
 pub struct Books {
     data: Vec<Book>,
 }
@@ -143,6 +148,12 @@ impl Iterator for Books {
     type Item = Book;
     fn next(&mut self) -> Option<Self::Item> {
         self.data.pop()
+    }
+}
+
+impl From<Vec<Book>> for Books {
+    fn from(data: Vec<Book>) -> Self {
+        Self { data }
     }
 }
 
@@ -201,7 +212,27 @@ pub struct Book {
     pub description: Option<String>,
     pub duration: Option<Duration>,
     pub series: Option<(String, u8)>,
-    pub image: Option<PathBuf>,
+    pub image_path: Option<PathBuf>,
+    pub image: Option<RetainedImage>,
+}
+
+impl Book {
+    pub fn set_image(&mut self) -> bool {
+        if let Some(path) = &self.image_path {
+            let image_bytes = match open(path) {
+                Ok(file) => file.to_rgb8().into_raw(),
+                _ => return false,
+            };
+            if let Ok(image) = RetainedImage::from_image_bytes(&self.title, &image_bytes) {
+                self.image = Some(image);
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }
 }
 
 pub type Id = usize;
@@ -216,7 +247,7 @@ pub struct StordBook {
     pub duration: Option<Duration>,
     pub series: Data,
     pub series_number: u8,
-    pub image: Option<PathBuf>,
+    pub image_path: Option<PathBuf>,
 }
 
 pub enum Search<'a> {
