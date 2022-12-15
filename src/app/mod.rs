@@ -4,18 +4,20 @@ mod view;
 
 use crate::*;
 pub use app_state::AppState;
-pub use components::{Options, top_bar};
+pub use components::*;
 pub use view::View;
 
 use eframe::egui;
 use egui_extras::RetainedImage;
+
+use self::components::library;
 
 pub struct App {
     state: AppState,
     book_shelf: BookShelf,
     book_list: Vec<Book>,
     options: Options,
-    input_faild: String,
+    book_manager: BookManger,
     default_image: RetainedImage,
 }
 
@@ -47,7 +49,7 @@ impl Default for App {
             book_shelf,
             book_list: Vec::default(),
             options: Options::default(),
-            input_faild: String::default(),
+            book_manager: BookManger::default(),
             default_image,
         };
         out.book_list_title();
@@ -62,44 +64,11 @@ impl eframe::App for App {
 
         match self.state {
             AppState::Library => {
-                egui::CentralPanel::default().show(ctx, |ui| {
-                    egui::ScrollArea::vertical().show(ui, |ui| {
-                        for book in self.book_list.iter() {
-                            ui.with_layout(egui::Layout::left_to_right(egui::Align::LEFT), |ui| {
-                                if let Some(image) = &book.image {
-                                    image.show(ui);
-                                } else {
-                                    self.default_image.show(ui);
-                                }
-                                ui.with_layout(
-                                    egui::Layout::top_down_justified(egui::Align::LEFT),
-                                    |ui| {
-                                        ui.label(&book.title);
-                                        if let Some(author) = &book.authour {
-                                            ui.label(format!("Author: {}", author));
-                                        }
-                                        if let Some(narrator) = &book.narrator {
-                                            ui.label(format!("Narrator: {}", narrator));
-                                        }
-                                        ui.separator();
-                                    },
-                                );
-                            });
-                        }
-                    });
-                });
+                self.handle(library(self, ctx));
             }
             AppState::Preferences => {}
             AppState::BookManger => {
-                egui::CentralPanel::default().show(ctx, |ui|{
-                    ui.label("Add a single book or many. Simply by inputing the path or root path repectivley");
-                    ui.with_layout(egui::Layout::left_to_right(egui::Align::LEFT), |ui|{
-                        ui.add(egui::TextEdit::singleline(&mut self.input_faild));
-                        if ui.button("add").clicked(){
-                            // this is ware we need to get data out of books...
-                        }
-                    });
-                });
+                self.book_manager.show(ctx);
             }
         }
     }
@@ -127,7 +96,7 @@ impl App {
         }
         match state {
             AppState::BookManger => {
-                self.input_faild = String::default();
+                self.book_manager = BookManger::default();
             }
             _ => {}
         }
