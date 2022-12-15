@@ -1,10 +1,10 @@
 mod app_state;
-mod options;
+mod components;
 mod view;
 
 use crate::*;
 pub use app_state::AppState;
-pub use options::Options;
+pub use components::{Options, top_bar};
 pub use view::View;
 
 use eframe::egui;
@@ -57,14 +57,7 @@ impl Default for App {
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::TopBottomPanel::top("topbar").show(ctx, |ui| {
-            ui.with_layout(egui::Layout::left_to_right(egui::Align::LEFT), |ui| {
-                if ui.button("⚙").clicked() {
-                    self.options.visibility.toggle();
-                }
-                ui.label(self.state.to_string());
-            });
-        });
+        self.handle(top_bar(self, ctx));
         self.handle(self.options.show(ctx));
 
         match self.state {
@@ -97,7 +90,6 @@ impl eframe::App for App {
                 });
             }
             AppState::Preferences => {}
-            AppState::Player => {}
             AppState::BookManger => {
                 egui::CentralPanel::default().show(ctx, |ui|{
                     ui.label("Add a single book or many. Simply by inputing the path or root path repectivley");
@@ -125,7 +117,8 @@ impl App {
     fn handle(&mut self, event: AppEvent) {
         match event {
             AppEvent::SwitchState(state) => self.switch_states(state),
-            AppEvent::None => {}
+            AppEvent::ToggleOption => self.options.visibility.toggle(),
+            _ => {}
         }
     }
     fn switch_states(&mut self, state: AppState) {
@@ -147,4 +140,5 @@ pub enum AppEvent {
     #[default]
     None,
     SwitchState(AppState),
+    ToggleOption,
 }

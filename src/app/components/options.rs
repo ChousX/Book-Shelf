@@ -1,6 +1,5 @@
-use super::{app_state::AppState, view::View, AppEvent};
-use eframe::{egui, epaint::ahash::HashMap};
-use egui_extras::RetainedImage;
+use super::{AppState, View, AppEvent};
+use eframe::egui;
 
 #[derive(Default)]
 pub struct Options {
