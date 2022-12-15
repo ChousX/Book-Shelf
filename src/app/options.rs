@@ -1,4 +1,4 @@
-use super::{view::View, app_state::AppState, AppEvent};
+use super::{app_state::AppState, view::View, AppEvent};
 use eframe::{egui, epaint::ahash::HashMap};
 use egui_extras::RetainedImage;
 

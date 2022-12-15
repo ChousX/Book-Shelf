@@ -2,15 +2,14 @@ mod app_state;
 mod options;
 mod view;
 
+use crate::*;
 pub use app_state::AppState;
 pub use options::Options;
 pub use view::View;
-use crate::*;
 
 use eframe::egui;
 use egui_extras::RetainedImage;
 
- 
 pub struct App {
     state: AppState,
     book_shelf: BookShelf,
@@ -42,7 +41,7 @@ impl Default for App {
             ..Default::default()
         });
         let default_image =
-             RetainedImage::from_image_bytes("default image", include_bytes!("no_pic.png")).unwrap();
+            RetainedImage::from_image_bytes("default image", include_bytes!("no_pic.png")).unwrap();
         let mut out = Self {
             state: AppState::default(),
             book_shelf,
@@ -72,7 +71,7 @@ impl eframe::App for App {
             AppState::Library => {
                 egui::CentralPanel::default().show(ctx, |ui| {
                     egui::ScrollArea::vertical().show(ui, |ui| {
-                        for book in self.book_list.iter(){
+                        for book in self.book_list.iter() {
                             ui.with_layout(egui::Layout::left_to_right(egui::Align::LEFT), |ui| {
                                 if let Some(image) = &book.image {
                                     image.show(ui);
@@ -90,7 +89,6 @@ impl eframe::App for App {
                                             ui.label(format!("Narrator: {}", narrator));
                                         }
                                         ui.separator();
-                                       
                                     },
                                 );
                             });
@@ -144,12 +142,9 @@ impl App {
     }
 }
 
-
 #[derive(Default)]
 pub enum AppEvent {
     #[default]
     None,
     SwitchState(AppState),
 }
-
-

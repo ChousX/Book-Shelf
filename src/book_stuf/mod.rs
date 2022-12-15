@@ -1,13 +1,13 @@
-mod stored_book;
-mod container;
 mod book;
 mod books;
+mod container;
+mod stored_book;
 
-pub use stored_book::StordBook;
-pub use container::Container;
 pub use book::Book;
 pub use books::Books;
+pub use container::Container;
 use std::collections::HashMap;
+pub use stored_book::StordBook;
 
 pub type Id = usize;
 pub type Data = Option<Id>;
@@ -144,9 +144,6 @@ impl BookShelf {
         }
     }
 }
-
-
-
 
 pub enum Search<'a> {
     Title(&'a str),

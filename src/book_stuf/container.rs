@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use super::Id;
+use std::collections::HashMap;
 pub struct Container<T> {
     map: HashMap<Id, T>,
 }

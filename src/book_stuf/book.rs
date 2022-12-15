@@ -1,7 +1,7 @@
-use std::path::PathBuf;
 use chrono::Duration;
 use egui_extras::RetainedImage;
 use image::open;
+use std::path::PathBuf;
 
 #[derive(Default)]
 pub struct Book {

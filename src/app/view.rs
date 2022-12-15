@@ -1,4 +1,3 @@
-
 #[derive(Default)]
 pub enum View {
     #[default]

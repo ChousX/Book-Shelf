@@ -1,4 +1,3 @@
-
 #[derive(Default, Clone, Copy, PartialEq)]
 pub enum AppState {
     #[default]
