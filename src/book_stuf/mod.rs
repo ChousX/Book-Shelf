@@ -9,6 +9,7 @@ pub use books::Books;
 pub use container::Container;
 use std::collections::HashMap;
 pub use stored_book::StordBook;
+pub use librarian::run;
 
 pub type Id = usize;
 pub type Data = Option<Id>;
@@ -67,6 +68,12 @@ impl BookShelf {
 
         // inserting stored book into self
         self.books.insert(book.title, in_book);
+    }
+
+    pub fn add_books(&mut self, books: Books){
+        for book in books{
+            self.add(book);
+        }
     }
 
     fn to_book(&self, title: &str, stored_book: &StordBook) -> Book {

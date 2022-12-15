@@ -6,19 +6,17 @@ use std::convert::TryFrom;
 
 use std::fs;
 use std::fs::DirEntry;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
+
+use crate::{Books, Book};
 
 /// Will make a vector containing book paths
-pub fn get_all(root: impl Into<&Path>) -> Vec<PathBuf> {
+pub fn get_all(root: &Path) -> Vec<PathBuf> {
     let mut out = Vec::new();
-    let root = root.into();
     let mut queue = {
         let dirs = match fs::read_dir(root) {
             Ok(root) => root,
-            Err(_) => {
-                warn!("error in reading in root files");
-                continue;
-            }
+            Err(_) => {return out;}
         };
         let mut queue = std::collections::VecDeque::new();
         for p in dirs {
@@ -43,22 +41,21 @@ pub fn get_all(root: impl Into<&Path>) -> Vec<PathBuf> {
     out
 }
 
-pub fn run(root: impl Into<&Path>) -> Books{
+pub fn run(root: &Path) -> Books{
     let mut output = Vec::new();
     
     //so in therory all the dirs have no sub dirs
-    for path in get_all(root).into_iter() {
-        let mut b_title = None;
-        let mut b_authour = None;
-        let mut b_narrator = None;
-        let mut b_path = None;
-        let mut b_description = None;
-        let mut b_duration = None;
-        let mut b_series = None;
-        let mut b_image_path = None;
-        let mut b_image = None;
-        if path.is_dir() {
-            let dir = match fs::read_dir(path) {
+    'fp: for file_path in get_all(root).into_iter() {
+        let mut title = None;
+        let mut authour = None;
+        let mut narrator = None;
+        let mut description = None;
+        // let mut duration = None;
+        // let mut series = None;
+        // let mut image_path = None;
+        // let mut image = None;
+        if file_path.is_dir() {
+            let dir = match fs::read_dir(file_path.clone()) {
                 Ok(dir) => dir,
                 Err(_err) => continue,
             };
@@ -72,14 +69,15 @@ pub fn run(root: impl Into<&Path>) -> Books{
                     }
                 }
             }
-            let mut book_found = None;
             for OrdHelper(ext, path) in files.drain() {
                 match ext {
                     Extention::Nfo => {
                         if let Some(info) = Nfo::new(path.clone()) {
-                            //we got duh data
+                            title = info.general.title;
+                            authour = info.general.author;
+                            narrator = info.general.read_by;
+                            description = info.description
 
-                            title = 
                         }
                     }
                     Extention::Cue => {
@@ -98,12 +96,27 @@ pub fn run(root: impl Into<&Path>) -> Books{
                     Extention::Jpg => {
                         // far futer for gui
                     }
+                    Extention::Png => {
+                        // far futer for gui
+                    }
+                }
+                if title.is_some(){
+                    output.push(Book{
+                        title: title.unwrap(),
+                        narrator,
+                        authour,
+                        description,
+                        path: Some(file_path),
+                        ..Default::default()
+                    });
+                    continue 'fp;
                 }
             }
         } else {
             //examin meta data
         }
     }
+    output.into()
 }
 
 fn dir_containing_dir(dir: &PathBuf) -> Option<Vec<PathBuf>> {
@@ -114,7 +127,7 @@ fn dir_containing_dir(dir: &PathBuf) -> Option<Vec<PathBuf>> {
     let dirs = match fs::read_dir(dir) {
         Ok(root) => root,
         Err(_) => {
-            info!("");
+            
             return None;
         }
     };
@@ -123,7 +136,6 @@ fn dir_containing_dir(dir: &PathBuf) -> Option<Vec<PathBuf>> {
         let path = match path {
             Ok(path) => path,
             Err(_) => {
-                warn!("path entry failed to unwrap");
                 continue;
             }
         };
@@ -154,7 +166,6 @@ impl TryFrom<&DirEntry> for Extention {
     fn try_from(value: &DirEntry) -> Result<Self, Self::Error> {
         if let Some(value) = value.path().extension() {
             if let Some(value) = value.to_str() {
-                info!("{}", value);
                 use Extention::*;
                 return Ok(match value {
                     "nfo" => Nfo,
@@ -165,7 +176,6 @@ impl TryFrom<&DirEntry> for Extention {
                     "png" => Png,
 
                     e => {
-                        warn!("unsaported extention |.{}|", e);
                         return Err(());
                     }
                 });
@@ -189,10 +199,3 @@ impl Ord for OrdHelper {
     }
 }
 
-impl Default for Librarian {
-    fn default() -> Self {
-        Self {
-            roots: Vec::default(),
-        }
-    }
-}

@@ -47,7 +47,8 @@ impl eframe::App for App {
             }
             AppState::Preferences => {}
             AppState::BookManger => {
-                self.book_manager.show(ctx);
+                let e = self.book_manager.show(ctx);
+                self.handle(e);
             }
         }
     }
@@ -105,6 +106,7 @@ impl App {
         match event {
             AppEvent::SwitchState(state) => self.switch_states(state),
             AppEvent::ToggleOption => self.options.visibility.toggle(),
+            AppEvent::AddBooks(books) => self.book_shelf.add_books(books),
             _ => {}
         }
     }
@@ -129,4 +131,5 @@ pub enum AppEvent {
     None,
     SwitchState(AppState),
     ToggleOption,
+    AddBooks(Books)
 }
