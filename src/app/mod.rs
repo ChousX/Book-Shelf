@@ -23,37 +23,16 @@ pub struct App {
 
 impl Default for App {
     fn default() -> Self {
-        let mut book_shelf = BookShelf::default();
-        book_shelf.add(Book {
-            title: "test1".to_owned(),
-            authour: Some("a".to_owned()),
-            narrator: Some("n".to_owned()),
-            ..Default::default()
-        });
-        book_shelf.add(Book {
-            title: "test2".to_owned(),
-            authour: Some("a2".to_owned()),
-            narrator: Some("n2".to_owned()),
-            ..Default::default()
-        });
-        book_shelf.add(Book {
-            title: "test3".to_owned(),
-            authour: Some("a3".to_owned()),
-            narrator: Some("n3".to_owned()),
-            ..Default::default()
-        });
         let default_image =
             RetainedImage::from_image_bytes("default image", include_bytes!("no_pic.png")).unwrap();
-        let mut out = Self {
+         Self {
             state: AppState::default(),
-            book_shelf,
+            book_shelf: BookShelf::default(),
             book_list: Vec::default(),
             options: Options::default(),
             book_manager: BookManger::default(),
             default_image,
-        };
-        out.book_list_title();
-        out
+         }
     }
 }
 
@@ -79,6 +58,29 @@ impl App {
         let mut new_list: Vec<Book> = self.book_shelf.get_books().collect();
         new_list.sort_by(|s0, s1| s0.title.cmp(&s1.title));
         self.book_list = new_list.into();
+    }
+    pub fn test() -> Self {
+        let mut book_shelf = BookShelf::default();
+        for (i, (author, narrator)) in [( "Jax", "Jo"), ("Bob", "Alex"), ("Cam", "Coal"), ( "Jax", "Jo"), ("Bob", "Alex"), ("Cam", "Bob"), ( "Jim", "Jo"), ("Bob", "Alex"), ("Cam", "Coal"), ].into_iter().enumerate(){
+            book_shelf.add(Book{
+                title: format!("Title: {i}"),
+                authour: Some(author.to_string()),
+                narrator: Some(narrator.to_string()),
+                ..Default::default()
+            });
+        }
+        let default_image =
+            RetainedImage::from_image_bytes("default image", include_bytes!("no_pic.png")).unwrap();
+        let mut out = Self {
+            state: AppState::default(),
+            book_shelf,
+            book_list: Vec::default(),
+            options: Options::default(),
+            book_manager: BookManger::default(),
+            default_image,
+        };
+        out.book_list_title();
+        out
     }
 }
 
