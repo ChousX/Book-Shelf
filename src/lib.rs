@@ -5,6 +5,8 @@ use image::open;
 use std::collections::HashMap;
 use std::fs::File;
 use std::path::PathBuf;
+mod app;
+pub use app::*;
 
 #[derive(Default)]
 pub struct BookShelf {
