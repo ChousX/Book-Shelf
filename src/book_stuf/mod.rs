@@ -2,6 +2,7 @@ mod book;
 mod books;
 mod container;
 mod stored_book;
+mod librarian;
 
 pub use book::Book;
 pub use books::Books;

@@ -22,3 +22,4 @@ eframe = "0.20.1"
 egui_extras = {version = "0.20.0", features = ["image"]}
 image = { version = "0.24", default-features = false, features = ["jpeg", "png"] }
 poll-promise = "0.2.0"
+lofty = "0.9.0"
