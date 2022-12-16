@@ -1,11 +1,15 @@
+use image::DynamicImage;
+use image::codecs::png::PngEncoder;
 use lofty::{read_from_path, Probe};
 use nfo::Nfo;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-use std::fs;
+use std::fs::{self, File};
 use std::fs::DirEntry;
+use std::io::BufWriter;
 use std::path::{Path, PathBuf};
+use image::ImageEncoder;
 
 use crate::{Book, Books};
 
@@ -90,15 +94,31 @@ pub fn run(root: &Path) -> Books {
                         // if we do not have the title by this point we will have to pare the file name...
                     }
                     Extention::Jpg => {
+                        
                         if image_path.is_none(){
-                            image_path = Some(path);
+                            //convert the jpg in to a png
+                            let target = {
+                                let name = path.file_name().unwrap();
+                                let name = name.to_string_lossy();
+                                let name = name.strip_suffix(".jpg").unwrap();
+                                let mut path = path.clone();
+                                path.pop();
+                                path.push(format!("{name}.png"));
+                                path 
+                            };
+                            if let Ok(file) = image::open(&path){
+                                if encode_png( &file, target.clone()){
+                                    println!("{:?}", target);
+                                    image_path = Some(target);
+                                }
+                            }
                         }
                         
                     }
                     Extention::Png => {
-                        if image_path.is_none(){
-                            image_path = Some(path);
-                        }
+                        
+                        image_path = Some(path);
+                        
 
                     }
                 }
@@ -155,8 +175,8 @@ fn dir_containing_dir(dir: &PathBuf) -> Option<Vec<PathBuf>> {
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub enum Extention {
-    Jpg = 5,
-    Png = 4,
+    Png = 5,
+    Jpg = 4,
     Nfo = 3,
     Cue = 2,
     M4b = 1,
@@ -200,3 +220,10 @@ impl Ord for OrdHelper {
         self.0.cmp(&other.0)
     }
 }
+
+fn encode_png(img: &DynamicImage, name: PathBuf) -> bool {
+    let file = File::create(name).unwrap();
+    let ref mut buff = BufWriter::new(file);
+    let encoder = PngEncoder::new(buff);
+    encoder.write_image( img.as_bytes(), img.width(), img.height(), img.color()).is_ok()
+  }

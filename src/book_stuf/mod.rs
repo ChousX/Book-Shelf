@@ -120,7 +120,6 @@ impl BookShelf {
             // duration: stored_book.duration.clone(),
             series,
             image_path: stored_book.image_path.clone(),
-            // image: None,
         }
     }
 

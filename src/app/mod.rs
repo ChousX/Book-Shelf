@@ -118,6 +118,11 @@ impl App {
                 self.book_shelf.add_books(books);
                 self.book_list_title();
             }
+            AppEvent::AddImages(images) => {
+                for image in images{
+                    self.add_image(image);
+                }
+            }
             _ => {}
         }
     }
