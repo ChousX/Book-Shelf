@@ -1,4 +1,3 @@
-
 use lofty::{read_from_path, Probe};
 use nfo::Nfo;
 use std::cmp::Ordering;
@@ -6,9 +5,9 @@ use std::convert::TryFrom;
 
 use std::fs;
 use std::fs::DirEntry;
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 
-use crate::{Books, Book};
+use crate::{Book, Books};
 
 /// Will make a vector containing book paths
 pub fn get_all(root: &Path) -> Vec<PathBuf> {
@@ -16,7 +15,9 @@ pub fn get_all(root: &Path) -> Vec<PathBuf> {
     let mut queue = {
         let dirs = match fs::read_dir(root) {
             Ok(root) => root,
-            Err(_) => {return out;}
+            Err(_) => {
+                return out;
+            }
         };
         let mut queue = std::collections::VecDeque::new();
         for p in dirs {
@@ -41,9 +42,9 @@ pub fn get_all(root: &Path) -> Vec<PathBuf> {
     out
 }
 
-pub fn run(root: &Path) -> Books{
+pub fn run(root: &Path) -> Books {
     let mut output = Vec::new();
-    
+
     //so in therory all the dirs have no sub dirs
     'fp: for file_path in get_all(root).into_iter() {
         let mut title = None;
@@ -52,7 +53,7 @@ pub fn run(root: &Path) -> Books{
         let mut description = None;
         // let mut duration = None;
         // let mut series = None;
-        // let mut image_path = None;
+        let mut image_path = None;
         // let mut image = None;
         if file_path.is_dir() {
             let dir = match fs::read_dir(file_path.clone()) {
@@ -77,36 +78,38 @@ pub fn run(root: &Path) -> Books{
                             authour = info.general.author;
                             narrator = info.general.read_by;
                             description = info.description
-
                         }
                     }
                     Extention::Cue => {
                         // only really can grab the title
-
-                        
                     }
                     Extention::M4b => {
                         // will need to look at meta data
-                        
                     }
                     Extention::Mp3 => {
                         // if we do not have the title by this point we will have to pare the file name...
-                        
                     }
                     Extention::Jpg => {
-                        // far futer for gui
+                        if image_path.is_none(){
+                            image_path = Some(path);
+                        }
+                        
                     }
                     Extention::Png => {
-                        // far futer for gui
+                        if image_path.is_none(){
+                            image_path = Some(path);
+                        }
+
                     }
                 }
-                if title.is_some(){
-                    output.push(Book{
+                if title.is_some() {
+                    output.push(Book {
                         title: title.unwrap(),
                         narrator,
                         authour,
                         description,
                         path: Some(file_path),
+                        image_path,
                         ..Default::default()
                     });
                     continue 'fp;
@@ -127,7 +130,6 @@ fn dir_containing_dir(dir: &PathBuf) -> Option<Vec<PathBuf>> {
     let dirs = match fs::read_dir(dir) {
         Ok(root) => root,
         Err(_) => {
-            
             return None;
         }
     };
@@ -198,4 +200,3 @@ impl Ord for OrdHelper {
         self.0.cmp(&other.0)
     }
 }
-

@@ -1,3 +1,6 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Deserialize, Serialize)]
 #[derive(Default)]
 pub enum View {
     #[default]

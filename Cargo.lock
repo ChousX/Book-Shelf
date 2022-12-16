@@ -203,8 +203,8 @@ dependencies = [
  "mp4ameta",
  "nfo",
  "poll-promise",
+ "ron",
  "serde",
- "serde_json",
  "str_overlap",
  "unicode-segmentation",
 ]
@@ -303,6 +303,7 @@ dependencies = [
  "js-sys",
  "num-integer",
  "num-traits",
+ "serde",
  "time",
  "wasm-bindgen",
  "winapi",
@@ -1018,12 +1019,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "itoa"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4217ad341ebadf8d8e724e264f13e593e0648f5b3e94b3896a5df283be015ecc"
-
-[[package]]
 name = "jni"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1590,10 +1585,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "ryu"
-version = "1.0.11"
+name = "ron"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4501abdff3ae82a1c1b477a17252eb69cee9e66eb915c1abaa4f44d873df9f09"
+checksum = "300a51053b1cb55c80b7a9fde4120726ddf25ca241a1cbb926626f62fb136bff"
+dependencies = [
+ "base64",
+ "bitflags",
+ "serde",
+]
 
 [[package]]
 name = "safe_arch"
@@ -1661,17 +1661,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "serde_json"
-version = "1.0.87"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ce777b7b150d76b9cf60d28b55f5847135a003f7d7350c6be7a773508ce7d45"
-dependencies = [
- "itoa",
- "ryu",
- "serde",
 ]
 
 [[package]]

@@ -1,6 +1,8 @@
 use super::{AppEvent, AppState, View};
 use eframe::egui;
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Deserialize, Serialize)]
 #[derive(Default)]
 pub struct Options {
     pub visibility: View,

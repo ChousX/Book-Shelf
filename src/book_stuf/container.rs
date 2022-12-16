@@ -1,5 +1,8 @@
 use super::Id;
 use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Container<T> {
     map: HashMap<Id, T>,
 }
@@ -38,7 +41,7 @@ impl<T> Container<T> {
     }
 }
 
-impl<T: Default> Default for Container<T> {
+impl<T> Default for Container<T> {
     fn default() -> Self {
         Self {
             map: HashMap::default(),

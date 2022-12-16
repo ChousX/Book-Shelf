@@ -2,12 +2,15 @@ mod app_state;
 mod components;
 mod view;
 
+use std::{collections::HashMap, path::{Path, PathBuf}};
+
 use crate::*;
 pub use app_state::AppState;
+use chrono::Duration;
 pub use components::*;
 pub use view::View;
 
-use eframe::egui;
+use eframe::{egui};
 use egui_extras::RetainedImage;
 
 use self::components::library;
@@ -18,20 +21,25 @@ pub struct App {
     book_list: Vec<Book>,
     options: Options,
     book_manager: BookManger,
-    default_image: RetainedImage,
+    images: HashMap<PathBuf, RetainedImage>,
+    durations: Container<Duration>,
 }
 
 impl Default for App {
     fn default() -> Self {
+        
         let default_image =
             RetainedImage::from_image_bytes("default image", include_bytes!("no_pic.png")).unwrap();
+        let mut images = HashMap::default();
+        images.insert(PathBuf::from("no_pic.png"), default_image);
         Self {
             state: AppState::default(),
             book_shelf: BookShelf::default(),
             book_list: Vec::default(),
             options: Options::default(),
             book_manager: BookManger::default(),
-            default_image,
+            durations: Container::default(),
+            images,
         }
     }
 }
@@ -106,7 +114,10 @@ impl App {
         match event {
             AppEvent::SwitchState(state) => self.switch_states(state),
             AppEvent::ToggleOption => self.options.visibility.toggle(),
-            AppEvent::AddBooks(books) => self.book_shelf.add_books(books),
+            AppEvent::AddBooks(books) => {
+                self.book_shelf.add_books(books);
+                self.book_list_title();
+            }
             _ => {}
         }
     }
@@ -123,6 +134,14 @@ impl App {
         }
         self.state = state;
     }
+
+    fn add_image(&mut self, path: PathBuf){
+        if let Ok(bytes) = std::fs::read(&path){
+            if let Ok(image) = RetainedImage::from_image_bytes(path.to_string_lossy(), &bytes){
+                self.images.insert(path, image);
+            }
+        }
+    }
 }
 
 #[derive(Default)]
@@ -131,5 +150,6 @@ pub enum AppEvent {
     None,
     SwitchState(AppState),
     ToggleOption,
-    AddBooks(Books)
+    AddBooks(Books),
+    AddImages(Vec<PathBuf>),
 }

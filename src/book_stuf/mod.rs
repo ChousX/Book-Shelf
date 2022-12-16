@@ -1,20 +1,21 @@
 mod book;
 mod books;
 mod container;
-mod stored_book;
 mod librarian;
+mod stored_book;
 
 pub use book::Book;
 pub use books::Books;
 pub use container::Container;
+pub use librarian::run;
 use std::collections::HashMap;
 pub use stored_book::StordBook;
-pub use librarian::run;
 
 pub type Id = usize;
 pub type Data = Option<Id>;
+use serde::{Deserialize, Serialize};
 
-#[derive(Default)]
+#[derive(Debug, Deserialize, Serialize, Default)]
 pub struct BookShelf {
     books: HashMap<String, StordBook>,
     authour: Container<String>,
@@ -58,9 +59,9 @@ impl BookShelf {
             in_book.description = book.description;
         }
 
-        if book.duration.is_some() {
-            in_book.duration = book.duration;
-        }
+        // if book.duration.is_some() {
+        //     in_book.duration = book.duration;
+        // }
 
         if book.image_path.is_some() {
             in_book.image_path = book.image_path;
@@ -70,8 +71,8 @@ impl BookShelf {
         self.books.insert(book.title, in_book);
     }
 
-    pub fn add_books(&mut self, books: Books){
-        for book in books{
+    pub fn add_books(&mut self, books: Books) {
+        for book in books {
             self.add(book);
         }
     }
@@ -116,10 +117,10 @@ impl BookShelf {
             narrator,
             path: stored_book.path.clone(),
             description: stored_book.description.clone(),
-            duration: stored_book.duration.clone(),
+            // duration: stored_book.duration.clone(),
             series,
             image_path: stored_book.image_path.clone(),
-            image: None,
+            // image: None,
         }
     }
 

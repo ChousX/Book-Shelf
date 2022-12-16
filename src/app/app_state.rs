@@ -1,4 +1,5 @@
-#[derive(Default, Clone, Copy, PartialEq)]
+use serde::{Deserialize, Serialize};
+#[derive(Default, Clone, Copy, PartialEq, Debug, Deserialize, Serialize)]
 pub enum AppState {
     #[default]
     Library,
