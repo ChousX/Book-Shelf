@@ -2,15 +2,20 @@ mod app_state;
 mod components;
 mod view;
 
-use std::{collections::HashMap, path::{Path, PathBuf}};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf}, str::FromStr, rc::Rc,
+};
 
 use crate::*;
 pub use app_state::AppState;
 use chrono::Duration;
 pub use components::*;
+use poll_promise::Promise;
 pub use view::View;
+use crate::run;
 
-use eframe::{egui};
+use eframe::egui;
 use egui_extras::RetainedImage;
 
 use self::components::library;
@@ -23,11 +28,11 @@ pub struct App {
     book_manager: BookManger,
     images: HashMap<PathBuf, RetainedImage>,
     durations: Container<Duration>,
+    p_adding_books: Option<Promise<Books>>,
 }
 
 impl Default for App {
     fn default() -> Self {
-        
         let default_image =
             RetainedImage::from_image_bytes("default image", include_bytes!("no_pic.png")).unwrap();
         let mut images = HashMap::default();
@@ -40,13 +45,28 @@ impl Default for App {
             book_manager: BookManger::default(),
             durations: Container::default(),
             images,
+            p_adding_books: None
         }
     }
 }
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        self.handle(top_bar(self, ctx));
+        //update
+        let thinking = {
+            let mut output = false;
+            if let Some(promis) = &mut self.p_adding_books{
+                if let Some(result) = promis.ready_mut(){
+                    self.book_shelf.add_books(result.clone());
+                    self.book_list_title();
+                } else {
+                    output = true;
+                }
+            }
+            output
+        };
+        //gui
+        self.handle(top_bar(self, ctx, thinking));
         self.handle(self.options.show(ctx));
 
         match self.state {
@@ -68,45 +88,6 @@ impl App {
         new_list.sort_by(|s0, s1| s0.title.cmp(&s1.title));
         self.book_list = new_list.into();
     }
-    pub fn test() -> Self {
-        let mut book_shelf = BookShelf::default();
-        for (i, (author, narrator)) in [
-            ("Jax", "Jo"),
-            ("Bob", "Alex"),
-            ("Cam", "Coal"),
-            ("Jax", "Jo"),
-            ("Bob", "Alex"),
-            ("Cam", "Bob"),
-            ("Jim", "Jo"),
-            ("Bob", "Alex"),
-            ("Cam", "Coal"),
-            ("Jax", "Jo"),
-            ("Bob", "Alex"),
-            ("Cam", "Coal"),
-            ("Jax", "Jo"),
-            ("Bob", "Alex"),
-            ("Cam", "Bob"),
-            ("Jim", "Jo"),
-            ("Bob", "Alex"),
-            ("Cam", "Coal"),
-        ]
-        .iter()
-        .enumerate()
-        {
-            book_shelf.add(Book {
-                title: format!("Title: {i}"),
-                authour: Some(author.to_string()),
-                narrator: Some(narrator.to_string()),
-                ..Default::default()
-            });
-        }
-        let mut out = Self {
-            book_shelf,
-            ..Default::default()
-        };
-        out.book_list_title();
-        out
-    }
 }
 
 impl App {
@@ -114,12 +95,15 @@ impl App {
         match event {
             AppEvent::SwitchState(state) => self.switch_states(state),
             AppEvent::ToggleOption => self.options.visibility.toggle(),
-            AppEvent::AddBooks(books) => {
-                self.book_shelf.add_books(books);
-                self.book_list_title();
+            AppEvent::AddBooks(path) => {
+                let p = poll_promise::Promise::spawn_thread("getting books", move || {
+                    let path = PathBuf::from(path);
+                    run(&path)
+                });
+                self.p_adding_books = Some(p);
             }
             AppEvent::AddImages(images) => {
-                for image in images{
+                for image in images {
                     self.add_image(image);
                 }
             }
@@ -140,9 +124,9 @@ impl App {
         self.state = state;
     }
 
-    fn add_image(&mut self, path: PathBuf){
-        if let Ok(bytes) = std::fs::read(&path){
-            if let Ok(image) = RetainedImage::from_image_bytes(path.to_string_lossy(), &bytes){
+    fn add_image(&mut self, path: PathBuf) {
+        if let Ok(bytes) = std::fs::read(&path) {
+            if let Ok(image) = RetainedImage::from_image_bytes(path.to_string_lossy(), &bytes) {
                 self.images.insert(path, image);
             }
         }
@@ -155,6 +139,6 @@ pub enum AppEvent {
     None,
     SwitchState(AppState),
     ToggleOption,
-    AddBooks(Books),
+    AddBooks(String),
     AddImages(Vec<PathBuf>),
 }

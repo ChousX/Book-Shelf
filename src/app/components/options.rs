@@ -2,8 +2,7 @@ use super::{AppEvent, AppState, View};
 use eframe::egui;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
-#[derive(Default)]
+#[derive(Debug, Deserialize, Serialize, Default)]
 pub struct Options {
     pub visibility: View,
 }

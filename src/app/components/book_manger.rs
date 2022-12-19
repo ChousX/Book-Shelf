@@ -4,8 +4,7 @@ use super::{egui, App, AppEvent};
 use crate::run;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
-#[derive(Default)]
+#[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct BookManger(String);
 impl BookManger {
     pub fn show(&mut self, ctx: &egui::Context) -> AppEvent {
@@ -17,8 +16,9 @@ impl BookManger {
                 ui.with_layout(egui::Layout::left_to_right(egui::Align::LEFT), |ui| {
                     ui.add(egui::TextEdit::singleline(&mut self.0));
                     if ui.button("add").clicked() {
-                        let books = run(&PathBuf::from(self.0.clone()));
-                        return AppEvent::AddBooks(books);
+                        let save = self.0.clone();
+                        self.0 = String::new();
+                        return AppEvent::AddBooks(save);
                     } else {
                         AppEvent::None
                     }

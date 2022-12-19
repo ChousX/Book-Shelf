@@ -1,11 +1,7 @@
-use chrono::Duration;
-use egui_extras::RetainedImage;
-use image::open;
 use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
-#[derive(Default)]
+use chrono::Duration;
+#[derive(Default, Clone)]
 pub struct Book {
     pub title: String,
     pub authour: Option<String>,
@@ -14,5 +10,5 @@ pub struct Book {
     pub description: Option<String>,
     pub series: Option<(String, u8)>,
     pub image_path: Option<PathBuf>,
+    pub duration: Option<Duration>,
 }
-

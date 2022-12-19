@@ -1,15 +1,15 @@
-use image::DynamicImage;
 use image::codecs::png::PngEncoder;
+use image::DynamicImage;
 use lofty::{read_from_path, Probe};
 use nfo::Nfo;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-use std::fs::{self, File};
+use image::ImageEncoder;
 use std::fs::DirEntry;
+use std::fs::{self, File};
 use std::io::BufWriter;
 use std::path::{Path, PathBuf};
-use image::ImageEncoder;
 
 use crate::{Book, Books};
 
@@ -46,7 +46,7 @@ pub fn get_all(root: &Path) -> Vec<PathBuf> {
     out
 }
 
-pub fn run(root: &Path) -> Books {
+pub fn run(root: &PathBuf) -> Books {
     let mut output = Vec::new();
 
     //so in therory all the dirs have no sub dirs
@@ -94,8 +94,7 @@ pub fn run(root: &Path) -> Books {
                         // if we do not have the title by this point we will have to pare the file name...
                     }
                     Extention::Jpg => {
-                        
-                        if image_path.is_none(){
+                        if image_path.is_none() {
                             //convert the jpg in to a png
                             let target = {
                                 let name = path.file_name().unwrap();
@@ -104,22 +103,18 @@ pub fn run(root: &Path) -> Books {
                                 let mut path = path.clone();
                                 path.pop();
                                 path.push(format!("{name}.png"));
-                                path 
+                                path
                             };
-                            if let Ok(file) = image::open(&path){
-                                if encode_png( &file, target.clone()){
+                            if let Ok(file) = image::open(&path) {
+                                if encode_png(&file, target.clone()) {
                                     println!("{:?}", target);
                                     image_path = Some(target);
                                 }
                             }
                         }
-                        
                     }
                     Extention::Png => {
-                        
                         image_path = Some(path);
-                        
-
                     }
                 }
                 if title.is_some() {
@@ -197,7 +192,7 @@ impl TryFrom<&DirEntry> for Extention {
                     "jpg" => Jpg,
                     "png" => Png,
 
-                    e => {
+                    _e => {
                         return Err(());
                     }
                 });
@@ -225,5 +220,7 @@ fn encode_png(img: &DynamicImage, name: PathBuf) -> bool {
     let file = File::create(name).unwrap();
     let ref mut buff = BufWriter::new(file);
     let encoder = PngEncoder::new(buff);
-    encoder.write_image( img.as_bytes(), img.width(), img.height(), img.color()).is_ok()
-  }
+    encoder
+        .write_image(img.as_bytes(), img.width(), img.height(), img.color())
+        .is_ok()
+}

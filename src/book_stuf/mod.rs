@@ -6,6 +6,7 @@ mod stored_book;
 
 pub use book::Book;
 pub use books::Books;
+use chrono::Duration;
 pub use container::Container;
 pub use librarian::run;
 use std::collections::HashMap;
@@ -21,6 +22,7 @@ pub struct BookShelf {
     authour: Container<String>,
     narrator: Container<String>,
     series: Container<String>,
+    duration: Container<String>,
 }
 
 impl BookShelf {
@@ -59,9 +61,11 @@ impl BookShelf {
             in_book.description = book.description;
         }
 
-        // if book.duration.is_some() {
-        //     in_book.duration = book.duration;
-        // }
+        if let Some(duration) = book.duration{
+            let string = duration_to_string(&duration);
+            let id = self.duration.add(string);
+            in_book.duration = Some(id);
+        }
 
         if book.image_path.is_some() {
             in_book.image_path = book.image_path;
@@ -117,7 +121,7 @@ impl BookShelf {
             narrator,
             path: stored_book.path.clone(),
             description: stored_book.description.clone(),
-            // duration: stored_book.duration.clone(),
+            duration: None,
             series,
             image_path: stored_book.image_path.clone(),
         }
@@ -155,4 +159,29 @@ impl BookShelf {
 
 pub enum Search<'a> {
     Title(&'a str),
+}
+
+fn duration_to_string(duration: &Duration) -> String {
+    let hours = duration.num_hours();
+    let minutes = duration.num_minutes();
+    let seconds = duration.num_seconds();
+    format!("{hours}:{minutes}:{seconds}")
+}
+
+fn string_to_duration(string: &str) -> Duration{
+    let mut blah = string.split(":");
+    let mut output = Duration::zero();
+    if let Some(hours) = blah.next() {
+        let hours: i64 = hours.parse().unwrap();
+        output = output + Duration::hours(hours);
+    }
+    if let Some(min) = blah.next() {
+        let min: i64 = min.parse().unwrap();
+        output = output + Duration::minutes(min);
+    }
+    if let Some(sec) = blah.next() {
+        let sec: i64 = sec.parse().unwrap();
+        output = output + Duration::seconds(sec);
+    }
+    output
 }

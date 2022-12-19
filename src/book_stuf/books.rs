@@ -1,6 +1,6 @@
 use super::Book;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Books {
     pub data: Vec<Book>,
 }
