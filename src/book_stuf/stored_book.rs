@@ -2,8 +2,7 @@ use super::Data;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Default)]
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 pub struct StordBook {
     pub authour: Data,
     pub narrator: Data,

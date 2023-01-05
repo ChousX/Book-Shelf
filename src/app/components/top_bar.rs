@@ -7,7 +7,7 @@ pub fn top_bar(app: &App, ctx: &egui::Context, thinking: bool) -> AppEvent {
                 output = AppEvent::ToggleOption;
             }
             ui.label(app.state.to_string());
-            if thinking{
+            if thinking {
                 ui.label("thinking");
                 ui.spinner();
             }

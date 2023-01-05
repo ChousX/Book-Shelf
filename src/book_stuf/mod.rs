@@ -9,7 +9,7 @@ pub use books::Books;
 use chrono::Duration;
 pub use container::Container;
 pub use librarian::run;
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Path};
 pub use stored_book::StordBook;
 
 pub type Id = usize;
@@ -61,7 +61,7 @@ impl BookShelf {
             in_book.description = book.description;
         }
 
-        if let Some(duration) = book.duration{
+        if let Some(duration) = book.duration {
             let string = duration_to_string(&duration);
             let id = self.duration.add(string);
             in_book.duration = Some(id);
@@ -75,7 +75,8 @@ impl BookShelf {
         self.books.insert(book.title, in_book);
     }
 
-    pub fn add_books(&mut self, books: Books) {
+    pub fn add_books(&mut self, books: impl Into<Books>) {
+        let books = books.into();
         for book in books {
             self.add(book);
         }
@@ -157,6 +158,7 @@ impl BookShelf {
     }
 }
 
+
 pub enum Search<'a> {
     Title(&'a str),
 }
@@ -168,7 +170,7 @@ fn duration_to_string(duration: &Duration) -> String {
     format!("{hours}:{minutes}:{seconds}")
 }
 
-fn string_to_duration(string: &str) -> Duration{
+fn string_to_duration(string: &str) -> Duration {
     let mut blah = string.split(":");
     let mut output = Duration::zero();
     if let Some(hours) = blah.next() {

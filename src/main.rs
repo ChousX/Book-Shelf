@@ -12,6 +12,6 @@ fn main() {
     let app = eframe::run_native(
         "Book Shelf",
         options,
-        Box::new(|_| Box::new(App::default())),
+        Box::new(|cc| Box::new(App::from_save(cc))),
     );
 }

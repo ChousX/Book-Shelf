@@ -4,7 +4,7 @@ use eframe::epaint::ahash::HashMap;
 use egui_extras::RetainedImage;
 
 use super::{egui, App, AppEvent};
-pub fn library(app: &App, ctx: &egui::Context) -> AppEvent {
+pub fn library(app: &App, ctx: &egui::Context, width: f32, hieght: f32) -> AppEvent {
     let mut image_path = Vec::new();
     egui::CentralPanel::default().show(ctx, |ui| {
         egui::ScrollArea::vertical().show(ui, |ui| {
@@ -12,15 +12,21 @@ pub fn library(app: &App, ctx: &egui::Context) -> AppEvent {
                 ui.with_layout(egui::Layout::left_to_right(egui::Align::LEFT), |ui| {
                     if let Some(path) = &book.image_path {
                         if let Some(image) = app.images.get(path) {
-                            image.show(ui);
+                            // image.show(ui);
+                            ui.add(
+                                egui::Image::new(image.texture_id(ctx), (width, hieght))
+                            );
                         } else {
                             image_path.push(path.clone());
                         }
                     } else {
-                        app.images
+                        let image = app.images
                             .get(&PathBuf::from("no_pic.png"))
                             .unwrap()
-                            .show(ui);
+                            ;
+                        ui.add(
+                            egui::Image::new(image.texture_id(ctx), (width, hieght))
+                        );
                     }
                     ui.with_layout(egui::Layout::top_down_justified(egui::Align::LEFT), |ui| {
                         ui.label(&book.title);
